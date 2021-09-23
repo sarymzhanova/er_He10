@@ -36,6 +36,8 @@ public:
   TLorentzVector GetHe10() const { return fHe10; }
   TLorentzVector GetN1() const { return fn1; }
   TLorentzVector GetN2() const { return fn2; }
+  
+  TVector3 GetReactionPos() const { return fReactionPos; }
 
   void Clear();
 
