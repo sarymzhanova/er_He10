@@ -29,7 +29,7 @@ class ERNDPID : public ERTask {
     //Output arrays
     TClonesArray *fNDParticles = nullptr;
     ERNDSetup* fSetup = nullptr;
-    ERNDParticle* AddParticle(const TLorentzVector& lv, float tof);
+    ERNDParticle* AddParticle(const TLorentzVector& lv, const TLorentzVector& lv_n1, const TLorentzVector& lv_n2, float tof, float tof_n1, float tof_n2);
     ClassDef(ERNDPID,1)
 };
 

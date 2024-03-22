@@ -32,8 +32,8 @@ class ERNDTrackFinder : public ERTask {
     ERNDSetup* fSetup = nullptr;
     TVector3 fTargetVertex;
     bool fUserTargetVertexIsSet = false;
-    ERNDTrack* AddTrack(const TVector3& detectorVertex, const TVector3& targetVertex,
-                        float edep, float time, float tac);
+    ERNDTrack* AddTrack(const TVector3& detectorVertex, Bool_t isN1, Bool_t isN2, const TVector3& targetVertex,
+                        float edep, float edep_n1, float edep_n2, float time, float time_n1, float time_n2, float tac);	
     ClassDef(ERNDTrackFinder,1)
 };
 
