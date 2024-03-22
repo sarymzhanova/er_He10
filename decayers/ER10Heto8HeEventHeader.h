@@ -39,6 +39,7 @@ public:
   TLorentzVector GetN2() const { return fn2; }
   
   TVector3 GetReactionPos() const { return fReactionPos; }
+  Float_t GetReactionTime() const { return fTime; }
 
   void Clear();
 
