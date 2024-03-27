@@ -80,12 +80,21 @@ void ERNDUnpack::ApplyCalibrations(const ERChannel channel, float& amp, float& t
   applyCalibration(tac, fTACCalTable);
 }
 //--------------------------------------------------------------------------------------------------
-void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac, 
-                           const ERChannel channelNb) { 
-    auto* digiCollection = digi_collections_["NDDigis"];
-    new((*digiCollection) [digiCollection->GetEntriesFast()])
-        ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
+void ERNDDigitizer::AddDigi(Int_t stilbenNb, Float_t edep, Float_t edep_n1, Float_t edep_n2, Float_t edep_mis, Int_t parentTrackID, Float_t ly,
+                                 Float_t time,Float_t time_n1,Float_t time_n2,Float_t time_mis,Float_t neutronProb,Float_t x_in,Float_t y_in,Float_t z_in)
+{
+  auto* digiCollection = digi_collections_["NDDigis"];
+  new((*digiCollection) [digiCollection->GetEntriesFast()])
+              ERNDDigi(stilbenNb, edep, edep_n1, edep_n2, edep_mis, parentTrackID, ly, time,time_n1,time_n2,time_mis, neutronProb,x_in,y_in,z_in);
+
 }
+//--------------------------------------------------------------------------------------------------
+//void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac, 
+//                           const ERChannel channelNb) { 
+//    auto* digiCollection = digi_collections_["NDDigis"];
+//    new((*digiCollection) [digiCollection->GetEntriesFast()])
+//        ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
+//}
 //--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {
     const auto stationsInConfig = setup_configuration_->GetStationList(detector_name_);
