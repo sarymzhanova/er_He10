@@ -1,43 +1,64 @@
-#include "/home/rymzhanova/soft/er/macro/He10/sim_nd/reco/CreateCutGamma.C"
-TString inFilereco,inFilesetup,outFile;
-void recoName(TString inFileName);
+#if !defined(__CLING__)
+
+//standard ROOT includes
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TClonesArray.h"
+#include "TCut.h"
+
+//ExpertRoot includes
+#include "ER10Heto8HeEventHeader.h"
+#include "ERNDDigi.h"
+
+#endif
+
+#include "../reco/CreateCutGamma.C"
+
+TFile *f_simV,*f_simS,*f_recoV,*f_recoS,*f_outV,*f_outS;
+TTree *tree_simV, *tree_recoV;
+TTree *tree_simS, *tree_recoS;
+
+//declarations of functions
 Bool_t stilbenNcut(Int_t N_stilben,ER10Heto8HeEventHeader *b_EventHeader);
+
 void stilbenCoord();
 
 Double_t x[5][9], y[5], z[9];	//координаты центра стильбенов в плоскости (x,y)
 Int_t Nstil=0;
 
-void ND_1n_multhist(){
-	CreateCutGamma();
-	TString inFilelabV,inFilelabS;
-//	inFilelabS.Form("../sim_digi_8_1nNDAl.root");
-	inFilelabS.Form("../sim_digi_8_1nNDSteel.root");
-	inFilelabV.Form("../sim_digi_8_1nNDVac.root");
-
-	TString parFile = "par.root";
-	TFile *f_simV,*f_simS,*f_recoV,*f_recoS,*f_outV,*f_outS;
-		
-	recoName(inFilelabV);
+void OpenFilesAndTrees(TString inFilelabV, TString inFilelabS,
+						TString inFileRecoV, TString inFileRecoS,
+						TString outFileStilbensV, TString outFileStilbensS) {
+	
 	f_simV = new TFile(inFilelabV,"READ");
-	TTree *tree_simV = (TTree*)f_simV -> Get("er");
-	f_recoV = new TFile(inFilereco,"READ");
-	TTree *tree_recoV = (TTree*)f_recoV -> Get("er");
-	//f_outV = new TFile(outFile,"RECREATE");
+	tree_simV = (TTree*)f_simV -> Get("er");
+	f_recoV = new TFile(inFileRecoV,"READ");
+	tree_recoV = (TTree*)f_recoV -> Get("er");
+	f_outV = new TFile(outFileStilbensV,"RECREATE");
 	tree_simV->AddFriend(tree_recoV);
 	
-	//printf("recofile vacuum %s, outfile %s\n",f_recoV->GetName(),f_outV->GetName());
-
-	
-	recoName(inFilelabS);
-	outFile.Form("multhist.root");
 	f_simS = new TFile(inFilelabS,"READ");
-	TTree *tree_simS = (TTree*)f_simS -> Get("er");
-	f_recoS = new TFile(inFilereco,"READ");
-	TTree *tree_recoS = (TTree*)f_recoS -> Get("er");
-	f_outS = new TFile(outFile,"RECREATE");
+	tree_simS = (TTree*)f_simS -> Get("er");
+	f_recoS = new TFile(inFileRecoS,"READ");
+	tree_recoS = (TTree*)f_recoS -> Get("er");
+	f_outS = new TFile(outFileStilbensS,"RECREATE");
 	tree_simS->AddFriend(tree_recoS);
 
-	//printf("recofile steel %s, outfile %s\n",f_recoS->GetName(),f_outS->GetName());
+}
+
+void ND_1n_multhist(){
+	CreateCutGamma();
+
+	// OpenFilesAndTrees("../sim_digi_8_1nNDSteel.root", "../sim_digi_8_1nNDVac.root",
+	// 					"../reco/reco_sim_digi_8_1nNDSteel.root", "../reco/reco_sim_digi_8_1nNDVac.root",
+	// 					"Ncoord_sim_digi_8_1nNDSteel.root", "Ncoord_sim_digi_8_1nNDVac.root");
+
+	OpenFilesAndTrees("../sim_digi_8_1nNDAl.root", "../sim_digi_8_1nNDVac.root",
+						"../reco/reco_sim_digi_8_1nNDAl.root", "../reco/reco_sim_digi_8_1nNDVac.root",
+						"Ncoord_sim_digi_8_1nNDAl.root", "Ncoord_sim_digi_8_1nNDVac.root");
+
 	
 	auto arr_nddigiS = new TClonesArray("ERNDDigi",1000);
 	auto arr_ndtrackS = new TClonesArray("ERNDTrack",1000);
@@ -417,19 +438,7 @@ void ND_1n_multhist(){
 	//hmultV.Draw();
 	hmultV.Print();
 	f_outS->Write();
-	printf("Out file %s was created\n",outFile.Data());
-}
-//=========================================================================================================================
-void recoName(TString inFileName){
-	inFilereco = inFileName;
-	inFilesetup = inFileName;
-	outFile = inFileName;		
-	Ssiz_t p = inFileName.First(".");
-	//inFilereco.Replace(p,5,".target.root");
-	//inFilereco.Prepend("reco/");
-	inFilereco.Prepend("reco/reco_");
-	inFilesetup.Prepend("setup_");
-	outFile.Prepend("Ncoord_");
+	// printf("Out file %s was created\n",outFile.Data());
 }
 //-------------------------------------------------------------------------------------------------------------------------
 Bool_t stilbenNcut(Int_t N_stilben, ER10Heto8HeEventHeader *b_EventHeader){
