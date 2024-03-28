@@ -1,3 +1,9 @@
+#if !defined(__CLING__)
+
+#include "TCutG.h"
+
+#endif
+
 TCutG *cut_8he;
 
 void CreateCut(){

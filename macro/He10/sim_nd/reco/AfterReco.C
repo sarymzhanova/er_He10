@@ -1,5 +1,22 @@
-#include "/home/rymzhanova/soft/er/macro/He10/sim_nd/reco/CreateCut.C"
-#include "/home/rymzhanova/soft/er/macro/He10/sim_nd/reco/CreateCutGamma.C"
+#if !defined(__CLING__)
+
+//standard ROOT includes
+#include "TClonesArray.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH2.h"
+#include "TCanvas.h"
+
+//ExpertRoot includes
+#include "ER10Heto8HeEventHeader.h"
+#include "ERNDDigi.h"
+#include "ERTelescopeParticle.h"
+#include "ERNDPoint.h"
+
+#endif
+
+#include "./CreateCut.C"
+#include "./CreateCutGamma.C"
 
 void Clear();
 void DrawEdE(TString outFilename);
@@ -114,7 +131,7 @@ void AfterReco(){
 			}
 		}
 
-/		if(arr_reco_8he->GetEntries()>0 && arr_reco_p->GetEntries()>0 ){	//&& arr_nddigi->GetEntriesFast()==2
+		if(arr_reco_8he->GetEntries()>0 && arr_reco_p->GetEntries()>0 ){	//&& arr_nddigi->GetEntriesFast()==2
 			
 			he8_E = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThickStation();
 			he8_dE = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThinStation();

@@ -1,5 +1,23 @@
+#if !defined(__CLING__)
 
-void sim_digi (Int_t nEvents = 100000) {
+//standard ROOT includes
+#include "TString.h"
+#include "TSystem.h"
+#include "TStopwatch.h"
+
+//ExpertRoot includes
+#include "ERRunSim.h"
+#include <ER10Heto8HeEventHeader.h>
+#include <ERBeamDetSetup.h>
+#include <ERTelescopeSetup.h>
+#include <ERRTelescopeGeoComponentDoubleSi.h>
+#include <ERTelescopeDigitizer.h>
+#include <ERBeamDetDigitizer.h>
+
+#endif
+
+
+void sim_digi (Int_t nEvents = 1000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -20,7 +38,8 @@ void sim_digi (Int_t nEvents = 100000) {
   TString parFile= "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath 
-						 + "/db/QTelescope/QTelescopeParts_10heND.xml";
+						//  + "/db/QTelescope/QTelescopeParts_10heND.xml";
+             + "/db/QTelescope/QTelescopeParts_10he.xml";
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts_10he.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target.3h_Steel.geo.root";

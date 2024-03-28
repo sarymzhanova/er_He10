@@ -1,3 +1,22 @@
+#if !defined(__CLING__)
+
+//standard ROOT includes
+#include "TSystem.h"
+#include "TGeoManager.h"
+#include "TFile.h"
+#include "TBrowser.h"
+#include "TROOT.h"
+#include "TGeoTube.h"
+
+//FairRoot includes
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
+#include "FairGeoMedia.h"
+#include "FairGeoMedium.h"
+#include "FairGeoBuilder.h"
+
+#endif
+
 void create_target_10he_3h_steel_geo()
 {
   TString erPath = gSystem->Getenv("VMCWORKDIR");
@@ -117,5 +136,5 @@ void create_target_10he_3h_steel_geo()
 
   // Draw
   TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  // geoM->GetTopVolume()->Draw("ogl");
 }

@@ -1,3 +1,24 @@
+#if !defined(__CLING__)
+
+//standard ROOT includes
+#include "TSystem.h"
+#include "TGeoManager.h"
+#include "TFile.h"
+#include "TBrowser.h"
+#include "TMath.h"
+#include "TROOT.h"
+#include "TGeoBBox.h"
+#include "TGeoTube.h"
+
+//FairRoot includes
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
+#include "FairGeoMedia.h"
+#include "FairGeoMedium.h"
+#include "FairGeoBuilder.h"
+
+#endif
+
 void create_ND_geo_exp1904_10he_8m_al()
 {
   TString erPath = gSystem->Getenv("VMCWORKDIR");
@@ -197,5 +218,5 @@ float xyz[45][3] = {
 
   // Draw
   TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  // geoM->GetTopVolume()->Draw("ogl");
 }

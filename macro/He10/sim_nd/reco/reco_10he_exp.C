@@ -1,3 +1,28 @@
+#if !defined(__CLING__)
+
+//standard ROOT includes
+#include "TString.h"
+#include "TTree.h"
+#include "TFile.h"
+#include "TStopwatch.h"
+
+//FairRoot includes
+#include "FairParRootFileIo.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+
+//ExpertRoot includes
+#include "ERRunAna.h"
+#include "ERBeamDetTrackFinder.h"
+#include "ERBeamDetPID.h"
+#include "ERTelescopeTrackFinder.h"
+#include "ERTelescopePID.h"
+#include "ERNDTrackFinder.h"
+#include "ERNDPID.h"
+
+#endif
+
+
 // int fTriggerNum = 2;
 int fTriggerNum = 1;
 void reco_10he_exp(){
