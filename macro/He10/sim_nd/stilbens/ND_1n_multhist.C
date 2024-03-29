@@ -8,6 +8,8 @@
 #include "TClonesArray.h"
 #include "TCut.h"
 
+#include "FairAnaSelector.h"
+
 //ExpertRoot includes
 #include "ER10Heto8HeEventHeader.h"
 #include "ERNDDigi.h"
@@ -20,13 +22,29 @@ TFile *f_simV,*f_simS,*f_recoV,*f_recoS,*f_outV,*f_outS;
 TTree *tree_simV, *tree_recoV;
 TTree *tree_simS, *tree_recoS;
 
+TH1I *hmultS,*hmultV,*hmultS_nogamma,*hmultV_nogamma,*hmultS_th,*hmultV_th,*hmultS_th_nogamma,*hmultV_th_nogamma;
+TH1I *hmultS_stilben, *hmultV_stilben, *hmultS_stilben13, *hmultV_stilben13, *hmultS_stilbenOther, *hmultV_stilbenOther;
+TH1I *hmultS_stilben_nogamma, *hmultV_stilben_nogamma, *hmultS_stilben13_nogamma, *hmultV_stilben13_nogamma, *hmultS_stilbenOther_nogamma, *hmultV_stilbenOther_nogamma;
+TH1I *hmultS_th_stilben, *hmultV_th_stilben, *hmultS_th_stilben13, *hmultV_th_stilben13, *hmultS_th_stilbenOther, *hmultV_th_stilbenOther;
+TH1I *hmultS_th_nogamma_stilben, *hmultV_th_nogamma_stilben, *hmultS_th_nogamma_stilben13, *hmultV_th_nogamma_stilben13, *hmultS_th_nogamma_stilbenOther, *hmultV_th_nogamma_stilbenOther;
+
+TH1I *hChannelV_stilben, *hChannelV_stilben_mult1, *hChannelV_stilben_mult2, *hChannelS_stilben, *hChannelS_stilben_mult1, *hChannelS_stilben_mult2;
+TH1I *hChannelV_th_stilben, *hChannelV_th_stilben_mult1, *hChannelV_th_stilben_mult2, *hChannelS_th_stilben, *hChannelS_th_stilben_mult1, *hChannelS_th_stilben_mult2;
+TH1I *hChannelV_nogamma_stilben, *hChannelV_nogamma_stilben_mult1, *hChannelV_nogamma_stilben_mult2, *hChannelS_nogamma_stilben, *hChannelS_nogamma_stilben_mult1, *hChannelS_nogamma_stilben_mult2;
+TH1I *hChannelV_th_nogamma_stilben, *hChannelV_th_nogamma_stilben_mult1, *hChannelV_th_nogamma_stilben_mult2, *hChannelS_th_nogamma_stilben, *hChannelS_th_nogamma_stilben_mult1, *hChannelS_th_nogamma_stilben_mult2;
+
+TH2I *hChannelV2D, *hChannelS2D;
+TH2F *hLY_vacuum, *hLY_steel, *hLY_vac_nogamma, *hLY_steel_nogamma;
+
+
 //declarations of functions
 Bool_t stilbenNcut(Int_t N_stilben,ER10Heto8HeEventHeader *b_EventHeader);
-
 void stilbenCoord();
 
 Double_t x[5][9], y[5], z[9];	//координаты центра стильбенов в плоскости (x,y)
-Int_t Nstil=0;
+Int_t Nstil=0;		//вероятно, избыточная переменная
+Int_t Nstilben = 13;	//номер стильбена 
+Float_t Eth = 0.11;		//min Edep 110 keV, порог
 
 void OpenFilesAndTrees(TString inFilelabV, TString inFilelabS,
 						TString inFileRecoV, TString inFileRecoS,
@@ -47,7 +65,145 @@ void OpenFilesAndTrees(TString inFilelabV, TString inFilelabS,
 	tree_simS->AddFriend(tree_recoS);
 
 }
-
+void CreateHist(){
+	TString name;
+	
+	name.Form("Common multiplicity, steel shell");
+	hmultS = new TH1I("hmultS",name.Data(),10,0,10);
+	name.Form("Common multiplicity, vacuum shell");
+	hmultV = new TH1I("hmultV",name.Data(),10,0,10);
+	name.Form("Common multiplicity, steel shell, no gamma");
+	hmultS_nogamma = new TH1I("hmultS_nogamma",name.Data(),10,0,10);
+	name.Form("Common multiplicity, vacuum shell, no gamma");
+	hmultV_nogamma = new TH1I("hmultV_nogamma",name.Data(),10,0,10);
+	name.Form("Common multiplicity with threshold Edep>%.3f MeV, steel shell",Eth);
+	hmultS_th = new TH1I("hmultS_th",name.Data(),10,0,10);
+	name.Form("Common multiplicity with threshold Edep>%.3f MeV, vacuum shell",Eth);
+	hmultV_th = new TH1I("hmultV_th",name.Data(),10,0,10);	
+	name.Form("Common multiplicity with threshold Edep>%.3f MeV, no gamma, steel shell",Eth);
+	hmultS_th_nogamma = new TH1I("hmultS_th_nogamma",name.Data(),10,0,10);
+	name.Form("Common multiplicity with threshold Edep>%.3f MeV, no gamma, vacuum shell",Eth);
+	hmultV_th_nogamma = new TH1I("hmultV_th_nogamma",name.Data(),10,0,10);
+	
+	name.Form("Multiplicity in %i stilben, steel shell",Nstilben);
+	hmultS_stilben = new TH1I("hmultS_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, vacuum shell",Nstilben);
+	hmultV_stilben = new TH1I("hmultV_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, circle, steel shell",Nstilben);
+	hmultS_stilben13 = new TH1I("hmultS_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, circle, vacuum shell",Nstilben);
+	hmultV_stilben13 = new TH1I("hmultV_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben circle, other, steel shell",Nstilben);
+	hmultS_stilbenOther = new TH1I("hmultS_stlOther",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben circle, other, vacuum shell",Nstilben);
+	hmultV_stilbenOther = new TH1I("hmultV_stlOther",name.Data(),44,0,44);
+	
+	name.Form("Multiplicity in %i stilben, steel shell, no gamma",Nstilben);
+	hmultS_stilben_nogamma = new TH1I("hmultS_stl_nogamma",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, vacuum shell, no gamma",Nstilben);
+	hmultV_stilben_nogamma = new TH1I("hmultV_stl_nogamma",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, circle, steel shell, no gamma",Nstilben);
+	hmultS_stilben13_nogamma = new TH1I("hmultS_stl13_nogamma",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben, circle, vacuum shell, no gamma",Nstilben);
+	hmultV_stilben13_nogamma = new TH1I("hmultV_stl13_nogamma",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben circle, other, steel shell, no gamma",Nstilben);
+	hmultS_stilbenOther_nogamma = new TH1I("hmultS_stlOther_nogamma",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben circle, other, vacuum shell, no gamma",Nstilben);
+	hmultV_stilbenOther_nogamma = new TH1I("hmultV_stlOther_nogamma",name.Data(),44,0,44);
+	
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, steel shell",Nstilben,Eth);
+	hmultS_th_stilben = new TH1I("hmultS_th_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, vacuum shell",Nstilben,Eth);
+	hmultV_th_stilben = new TH1I("hmultV_th_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, steel shell",Nstilben,Eth);
+	hmultS_th_stilben13 = new TH1I("hmultS_th_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, vacuum shell",Nstilben,Eth);
+	hmultV_th_stilben13 = new TH1I("hmultV_th_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, other, steel shell",Nstilben,Eth);
+	hmultS_th_stilbenOther = new TH1I("hmultS_th_stlOther",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, other, vacuum shell",Nstilben,Eth);
+	hmultV_th_stilbenOther = new TH1I("hmultV_th_stlOther",name.Data(),44,0,44);
+	
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, steel shell",Nstilben,Eth);
+	hmultS_th_nogamma_stilben = new TH1I("hmultS_th_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, vacuum shell",Nstilben,Eth);
+	hmultV_th_nogamma_stilben = new TH1I("hmultV_th_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, steel shell",Nstilben,Eth);
+	hmultS_th_nogamma_stilben13 = new TH1I("hmultS_th_nogamma_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, vacuum shell",Nstilben,Eth);
+	hmultV_th_nogamma_stilben13 = new TH1I("hmultV_th_nogamma_stl13",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, other, steel shell",Nstilben,Eth);
+	hmultS_th_nogamma_stilbenOther = new TH1I("hmultS_th_nogamma_stlOther",name.Data(),44,0,44);
+	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, other, vacuum shell",Nstilben,Eth);
+	hmultV_th_nogamma_stilbenOther = new TH1I("hmultV_th_nogamma_stlOther",name.Data(),44,0,44);
+	
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell",Nstilben);
+	hChannelV_stilben = new TH1I("hChannelV_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, mult 1",Nstilben);
+	hChannelV_stilben_mult1 = new TH1I("hChannelV_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, mult 2",Nstilben);
+	hChannelV_stilben_mult2 = new TH1I("hChannelV_stl_mult2",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell",Nstilben);
+	hChannelS_stilben = new TH1I("hChannelS_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, mult 1",Nstilben);
+	hChannelS_stilben_mult1 = new TH1I("hChannelS_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, mult 2",Nstilben);
+	hChannelS_stilben_mult2 = new TH1I("hChannelS_stl_mult2",name.Data(),44,0,44);
+	
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f",Nstilben,Eth);
+	hChannelV_th_stilben = new TH1I("hChannelV_th_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, mult 1",Nstilben,Eth);
+	hChannelV_th_stilben_mult1 = new TH1I("hChannelV_th_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, mult 2",Nstilben,Eth);
+	hChannelV_th_stilben_mult2 = new TH1I("hChannelV_th_stl_mult2",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f",Nstilben,Eth);
+	hChannelS_th_stilben = new TH1I("hChannelS_th_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, mult 1",Nstilben,Eth);
+	hChannelS_th_stilben_mult1 = new TH1I("hChannelS_th_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, mult 2",Nstilben,Eth);
+	hChannelS_th_stilben_mult2 = new TH1I("hChannelS_th_stl_mult2",name.Data(),44,0,44);
+	
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma",Nstilben);
+	hChannelV_nogamma_stilben = new TH1I("hChannelV_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma, mult 1",Nstilben);
+	hChannelV_nogamma_stilben_mult1 = new TH1I("hChannelV_nogamma_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma, mult 2",Nstilben);
+	hChannelV_nogamma_stilben_mult2 = new TH1I("hChannelV_nogamma_stl_mult2",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, no gamma, steel shell",Nstilben);
+	hChannelS_nogamma_stilben = new TH1I("hChannelS_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, no gamma, steel shell, mult 1",Nstilben);
+	hChannelS_nogamma_stilben_mult1 = new TH1I("hChannelS_nogamma_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, no gamma, mult 2",Nstilben);
+	hChannelS_nogamma_stilben_mult2 = new TH1I("hChannelS_nogamma_stl_mult2",name.Data(),44,0,44);
+	
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma",Nstilben,Eth);
+	hChannelV_th_nogamma_stilben = new TH1I("hChannelV_th_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma, mult 1",Nstilben,Eth);
+	hChannelV_th_nogamma_stilben_mult1 = new TH1I("hChannelV_th_nogamma_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma, mult 2",Nstilben,Eth);
+	hChannelV_th_nogamma_stilben_mult2 = new TH1I("hChannelV_th_nogamma_stl_mult2",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma",Nstilben,Eth);
+	hChannelS_th_nogamma_stilben = new TH1I("hChannelS_th_nogamma_stl",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma, mult 1",Nstilben,Eth);
+	hChannelS_th_nogamma_stilben_mult1 = new TH1I("hChannelS_th_nogamma_stl_mult1",name.Data(),44,0,44);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma, mult 2",Nstilben,Eth);
+	hChannelS_th_nogamma_stilben_mult2 = new TH1I("hChannelS_th_nogamma_stl_mult2",name.Data(),44,0,44);
+	
+	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell",Nstilben);
+	hChannelV2D = new TH2I("hChannelV2D",name.Data(),9,0,9,5,0,5);
+	name.Form("Channels corresponding to geometric area of %i stilben, steel shell",Nstilben);
+	hChannelS2D = new TH2I("hChannelS2D",name.Data(),9,0,9,5,0,5);	
+	
+	name.Form("LightYield vs Edep, vacuum, reaction cut");
+	hLY_vacuum = new TH2F("hLY_vacuum",name.Data(),200,0,20,110,0,11);
+	name.Form("LightYield vs Edep, steel, reaction cut");
+	hLY_steel = new TH2F("hLY_steel",name.Data(),200,0,20,110,0,11);
+	name.Form("LightYield vs Edep, vacuum, without gamma");
+	hLY_vac_nogamma = new TH2F("hLY_vac_nogamma",name.Data(),200,0,20,110,0,11);
+	name.Form("LightYield vs Edep, steel, without gamma");
+	hLY_steel_nogamma = new TH2F("hLY_steel_nogamma",name.Data(),200,0,20,110,0,11);
+}
+//=================================================================================================================//
 void ND_1n_multhist(){
 	CreateCutGamma();
 
@@ -58,7 +214,8 @@ void ND_1n_multhist(){
 	OpenFilesAndTrees("../sim_digi_8_1nNDAl.root", "../sim_digi_8_1nNDVac.root",
 						"../reco/reco_sim_digi_8_1nNDAl.root", "../reco/reco_sim_digi_8_1nNDVac.root",
 						"Ncoord_sim_digi_8_1nNDAl.root", "Ncoord_sim_digi_8_1nNDVac.root");
-
+	CreateHist();
+	stilbenCoord();
 	
 	auto arr_nddigiS = new TClonesArray("ERNDDigi",1000);
 	auto arr_ndtrackS = new TClonesArray("ERNDTrack",1000);
@@ -84,177 +241,21 @@ void ND_1n_multhist(){
 	tree_simV->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_telpar_8hedV);
 	
 	Bool_t circle;
-	Int_t Nstilben,triggerS,triggerV,trigger_gamma=-1;
-	Int_t mult_digi,mult_th,mult_stil,mult_nogamma,mult_stil_nogamma,mult_th_nogamma,mult_stl_th_nogamma,channel;
+	Int_t triggerS,triggerV,trigger_gamma=-1;
+	
 	Int_t mult_nINcone=0;
 	Int_t x_ch,y_ch;
 	Float_t Z_stilben;
-	TString cut_reactionS,cut_reactionV;
+	TString cut_reactionS,cut_reactionV;	
 	
-	stilbenCoord();
-// 	Nstilben = 9;
- 	Nstilben = 13;
- 	Float_t Eth = 0.11;	//min Edep 110 keV
-// 	Float_t Eth = 0.3;	//появляется разница в количестве событий с отбором гамм и гаммы + порог
 	Float_t Edep,LY;
 	
-	TString name;
-	name.Form("Common multiplicity, steel shell");
-	TH1I hmultS("hmultS",name.Data(),10,0,10);
-	name.Form("Common multiplicity, vacuum shell");
-	TH1I hmultV("hmultV",name.Data(),10,0,10);
-	name.Form("Common multiplicity, steel shell, no gamma");
-	TH1I hmultS_nogamma("hmultS_nogamma",name.Data(),10,0,10);
-	name.Form("Common multiplicity, vacuum shell, no gamma");
-	TH1I hmultV_nogamma("hmultV_nogamma",name.Data(),10,0,10);
-	name.Form("Common multiplicity with threshold Edep>%.3f MeV, steel shell",Eth);
-	TH1I hmultS_th("hmultS_th",name.Data(),10,0,10);
-	name.Form("Common multiplicity with threshold Edep>%.3f MeV, vacuum shell",Eth);
-	TH1I hmultV_th("hmultV_th",name.Data(),10,0,10);
-	
-	name.Form("Common multiplicity with threshold Edep>%.3f MeV, no gamma, steel shell",Eth);
-	TH1I hmultS_th_nogamma("hmultS_th_nogamma",name.Data(),10,0,10);
-	name.Form("Common multiplicity with threshold Edep>%.3f MeV, no gamma, vacuum shell",Eth);
-	TH1I hmultV_th_nogamma("hmultV_th_nogamma",name.Data(),10,0,10);
-	
-//	name.Form("Multiplicity in %i stilben, steel shell",Nstilben);
-//	TH1I hmultS_stilben("hmultS_stl",name.Data(),10,0,10);
-//	name.Form("Multiplicity in %i stilben, vacuum shell",Nstilben);
-//	TH1I hmultV_stilben("hmultV_stl",name.Data(),10,0,10);
-//	name.Form("Multiplicity in %i stilben, steel shell, no gamma",Nstilben);
-//	TH1I hmultS_stilben_nogamma("hmultS_stl_no gamma",name.Data(),10,0,10);
-//	name.Form("Multiplicity in %i stilben, vacuum shell, no gamma",Nstilben);
-//	TH1I hmultV_stilben_nogamma("hmultV_stl_no gamma",name.Data(),10,0,10);
-
-//=================================================================================================================//
-	name.Form("Multiplicity in %i stilben, steel shell",Nstilben);
-	TH1I hmultS_stilben("hmultS_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, vacuum shell",Nstilben);
-	TH1I hmultV_stilben("hmultV_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, circle, steel shell",Nstilben);
-	TH1I hmultS_stilben13("hmultS_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, circle, vacuum shell",Nstilben);
-	TH1I hmultV_stilben13("hmultV_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben circle, other, steel shell",Nstilben);
-	TH1I hmultS_stilbenOther("hmultS_stlOther",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben circle, other, vacuum shell",Nstilben);
-	TH1I hmultV_stilbenOther("hmultV_stlOther",name.Data(),44,0,44);
-	
-	
-	name.Form("Multiplicity in %i stilben, steel shell, no gamma",Nstilben);
-	TH1I hmultS_stilben_nogamma("hmultS_stl_no gamma",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, vacuum shell, no gamma",Nstilben);
-	TH1I hmultV_stilben_nogamma("hmultV_stl_no gamma",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, circle, steel shell, no gamma",Nstilben);
-	TH1I hmultS_stilben13_nogamma("hmultS_stl13_no gamma",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben, circle, vacuum shell, no gamma",Nstilben);
-	TH1I hmultV_stilben13_nogamma("hmultV_stl13_no gamma",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben circle, other, steel shell, no gamma",Nstilben);
-	TH1I hmultS_stilbenOther_nogamma("hmultS_stlOther_no gamma",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben circle, other, vacuum shell, no gamma",Nstilben);
-	TH1I hmultV_stilbenOther_nogamma("hmultV_stlOther_no gamma",name.Data(),44,0,44);
-	
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_stilben("hmultS_th_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_stilben("hmultV_th_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_stilben13("hmultS_th_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_stilben13("hmultV_th_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, other, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_stilbenOther("hmultS_th_stlOther",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, circle, other, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_stilbenOther("hmultV_th_stlOther",name.Data(),44,0,44);
-	
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_nogamma_stilben("hmultS_th_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_nogamma_stilben("hmultV_th_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_nogamma_stilben13("hmultS_th_nogamma_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_nogamma_stilben13("hmultV_th_nogamma_stl13",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, other, steel shell",Nstilben,Eth);
-	TH1I hmultS_th_nogamma_stilbenOther("hmultS_th_nogamma_stlOther",name.Data(),44,0,44);
-	name.Form("Multiplicity in %i stilben with threshold Edep>%.3f MeV, no gamma, circle, other, vacuum shell",Nstilben,Eth);
-	TH1I hmultV_th_nogamma_stilbenOther("hmultV_th_nogamma_stlOther",name.Data(),44,0,44);
-	
-	
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell",Nstilben);
-	TH1I hChannelV_stilben("hChannelV_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, mult 1",Nstilben);
-	TH1I hChannelV_stilben_mult1("hChannelV_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, mult 2",Nstilben);
-	TH1I hChannelV_stilben_mult2("hChannelV_stl_mult2",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell",Nstilben);
-	TH1I hChannelS_stilben("hChannelS_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, mult 1",Nstilben);
-	TH1I hChannelS_stilben_mult1("hChannelS_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, mult 2",Nstilben);
-	TH1I hChannelS_stilben_mult2("hChannelS_stl_mult2",name.Data(),44,0,44);
-	
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f",Nstilben,Eth);
-	TH1I hChannelV_th_stilben("hChannelV_th_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, mult 1",Nstilben,Eth);
-	TH1I hChannelV_th_stilben_mult1("hChannelV_th_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, mult 2",Nstilben,Eth);
-	TH1I hChannelV_th_stilben_mult2("hChannelV_th_stl_mult2",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f",Nstilben,Eth);
-	TH1I hChannelS_th_stilben("hChannelS_th_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, mult 1",Nstilben,Eth);
-	TH1I hChannelS_th_stilben_mult1("hChannelS_th_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, mult 2",Nstilben,Eth);
-	TH1I hChannelS_th_stilben_mult2("hChannelS_th_stl_mult2",name.Data(),44,0,44);
-	
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma",Nstilben);
-	TH1I hChannelV_nogamma_stilben("hChannelV_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma, mult 1",Nstilben);
-	TH1I hChannelV_nogamma_stilben_mult1("hChannelV_nogamma_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, no gamma, mult 2",Nstilben);
-	TH1I hChannelV_nogamma_stilben_mult2("hChannelV_nogamma_stl_mult2",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, no gamma, steel shell",Nstilben);
-	TH1I hChannelS_nogamma_stilben("hChannelS_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, no gamma, steel shell, mult 1",Nstilben);
-	TH1I hChannelS_nogamma_stilben_mult1("hChannelS_nogamma_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, no gamma, mult 2",Nstilben);
-	TH1I hChannelS_nogamma_stilben_mult2("hChannelS_nogamma_stl_mult2",name.Data(),44,0,44);
-	
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma",Nstilben,Eth);
-	TH1I hChannelV_th_nogamma_stilben("hChannelV_th_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma, mult 1",Nstilben,Eth);
-	TH1I hChannelV_th_nogamma_stilben_mult1("hChannelV_th_nogamma_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell, Eth<%f, no gamma, mult 2",Nstilben,Eth);
-	TH1I hChannelV_th_nogamma_stilben_mult2("hChannelV_th_nogamma_stl_mult2",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma",Nstilben,Eth);
-	TH1I hChannelS_th_nogamma_stilben("hChannelS_th_nogamma_stl",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma, mult 1",Nstilben,Eth);
-	TH1I hChannelS_th_nogamma_stilben_mult1("hChannelS_th_nogamma_stl_mult1",name.Data(),44,0,44);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell, Eth<%f, no gamma, mult 2",Nstilben,Eth);
-	TH1I hChannelS_th_nogamma_stilben_mult2("hChannelS_th_nogamma_stl_mult2",name.Data(),44,0,44);
-	
-	name.Form("Channels corresponding to geometric area of %i stilben, vacuum shell",Nstilben);
-	TH2I hChannelV2D("hChannelV2D",name.Data(),9,0,9,5,0,5);
-	name.Form("Channels corresponding to geometric area of %i stilben, steel shell",Nstilben);
-	TH2I hChannelS2D("hChannelS2D",name.Data(),9,0,9,5,0,5);
-	
-	
-	
-	name.Form("LightYield vs Edep, vacuum, reaction cut");
-	TH2F hLY_vacuum("hLY_vacuum",name.Data(),200,0,20,110,0,11);
-	name.Form("LightYield vs Edep, steel, reaction cut");
-	TH2F hLY_steel("hLY_steel",name.Data(),200,0,20,110,0,11);
-	name.Form("LightYield vs Edep, vacuum, without gamma");
-	TH2F hLY_vac_nogamma("hLY_vac_nogamma",name.Data(),200,0,20,110,0,11);
-	name.Form("LightYield vs Edep, steel, without gamma");
-	TH2F hLY_steel_nogamma("hLY_steel_nogamma",name.Data(),200,0,20,110,0,11);
-	
-	
-	
-	
-	Int_t mult_digi13=0, mult_digiOther=0, mult_stil13=0, mult_stilOther=0, mult_stil13_nogamma=0, mult_stilOther_nogamma=0,mult_stl13_th_nogamma=0,mult_stlOther_th_nogamma=0;
+	Int_t mult_digi,mult_th,mult_stil,mult_nogamma,mult_stil_nogamma,mult_th_nogamma,mult_stl_th_nogamma,channel;
+	Int_t mult_digi13=0, mult_digiOther=0, mult_stil13=0, mult_stilOther=0; 
+	Int_t mult_stil13_nogamma=0, mult_stilOther_nogamma=0,mult_stl13_th_nogamma=0,mult_stlOther_th_nogamma=0;
 	
 	Int_t NumberV=0,NumberS=0;
+
 //	for(Int_t i=0;i<10;i++){
 	for(Int_t i=0;i<tree_simV->GetEntries();i++){
 		if(i%10000==0)printf("== %i =============================================\n",i);
@@ -270,7 +271,7 @@ void ND_1n_multhist(){
 		if(arr_nddigiV->GetEntriesFast()>0 && triggerV>0 && arr_telpar_8hedV->GetEntriesFast()==1 && arr_telpar_pV->GetEntriesFast()==1){
 			Nstil++;
 			mult_digi = arr_nddigiV->GetEntriesFast();
-			hmultV.Fill(mult_digi);
+			hmultV -> Fill(mult_digi);
 			
 			mult_th=0;
 			circle = stilbenNcut(Nstilben,b_EventHeaderV);
@@ -296,36 +297,36 @@ void ND_1n_multhist(){
 				if(Edep>Eth) mult_th++;
 				if(Edep>Eth && circle) mult_stil++;
 				if(circle) {
-					hChannelV_stilben.Fill(channel);
+					hChannelV_stilben -> Fill(channel);
 					x_ch = channel%9;
 					y_ch = channel/9;
-					hChannelV2D.Fill(x_ch,y_ch);
+					hChannelV2D -> Fill(x_ch,y_ch);
 				}
-				if(circle&&mult_digi==1) hChannelV_stilben_mult1.Fill(channel);
-				if(circle&&mult_digi==2) hChannelV_stilben_mult2.Fill(channel);
+				if(circle&&mult_digi==1) hChannelV_stilben_mult1 -> Fill(channel);
+				if(circle&&mult_digi==2) hChannelV_stilben_mult2 -> Fill(channel);
 				
-				if(circle&&Edep>Eth) hChannelV_th_stilben.Fill(channel);
-				if(circle&&Edep>Eth&&mult_digi==1) hChannelV_th_stilben_mult1.Fill(channel);
-				if(circle&&Edep>Eth&&mult_digi==2) hChannelV_th_stilben_mult2.Fill(channel);
-				
-				
+				if(circle&&Edep>Eth) hChannelV_th_stilben -> Fill(channel);
+				if(circle&&Edep>Eth&&mult_digi==1) hChannelV_th_stilben_mult1 -> Fill(channel);
+				if(circle&&Edep>Eth&&mult_digi==2) hChannelV_th_stilben_mult2 -> Fill(channel);
 				
 				
-				hLY_vacuum.Fill(Edep,LY);
+				
+				
+				hLY_vacuum -> Fill(Edep,LY);
 				if(cut_gamma->IsInside(Edep,LY)) trigger_gamma=1;
 				else trigger_gamma=-1;
 				if(trigger_gamma<0){
-					hLY_vac_nogamma.Fill(Edep,LY);
+					hLY_vac_nogamma -> Fill(Edep,LY);
 					mult_nogamma++;	
 				}
 				
-				if(circle&&trigger_gamma<0) hChannelV_nogamma_stilben.Fill(channel);
-				if(circle&&trigger_gamma<0&&mult_digi==1) hChannelV_nogamma_stilben_mult1.Fill(channel);
-				if(circle&&trigger_gamma<0&&mult_digi==2) hChannelV_nogamma_stilben_mult2.Fill(channel);
+				if(circle&&trigger_gamma<0) hChannelV_nogamma_stilben -> Fill(channel);
+				if(circle&&trigger_gamma<0&&mult_digi==1) hChannelV_nogamma_stilben_mult1 -> Fill(channel);
+				if(circle&&trigger_gamma<0&&mult_digi==2) hChannelV_nogamma_stilben_mult2 -> Fill(channel);
 				
-				if(circle&&trigger_gamma<0&&Edep>Eth) hChannelV_th_nogamma_stilben.Fill(channel);
-				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==1) hChannelV_th_nogamma_stilben_mult1.Fill(channel);
-				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==2) hChannelV_th_nogamma_stilben_mult2.Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth) hChannelV_th_nogamma_stilben -> Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==1) hChannelV_th_nogamma_stilben_mult1 -> Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==2) hChannelV_th_nogamma_stilben_mult2 -> Fill(channel);
 				
 				if(trigger_gamma<0 && circle) mult_stil_nogamma++;
 				if(Edep>Eth && trigger_gamma<0) mult_th_nogamma++;
@@ -340,35 +341,35 @@ void ND_1n_multhist(){
 				if(Edep>Eth && trigger_gamma<0 && circle&&channel ==13) mult_stl13_th_nogamma++;
 				if(Edep>Eth && trigger_gamma<0 && circle&&channel !=13) mult_stilOther_nogamma++;
 			}
-			hmultV_th.Fill(mult_th);
-			hmultV_nogamma.Fill(mult_nogamma);	
-			hmultV_th_nogamma.Fill(mult_th_nogamma);		
+			hmultV_th -> Fill(mult_th);
+			hmultV_nogamma -> Fill(mult_nogamma);	
+			hmultV_th_nogamma -> Fill(mult_th_nogamma);		
 			
-			if(circle) hmultV_stilben.Fill(mult_digi);
-			 hmultV_stilben13.Fill(mult_digi13);
-			 hmultV_stilbenOther.Fill(mult_digiOther);
+			if(circle) hmultV_stilben -> Fill(mult_digi);
+			 hmultV_stilben13 -> Fill(mult_digi13);
+			 hmultV_stilbenOther -> Fill(mult_digiOther);
 			 
-			hmultV_th_stilben.Fill(mult_stil);
-			hmultV_th_stilben13.Fill(mult_stil13);
-			hmultV_th_stilbenOther.Fill(mult_stilOther);
+			hmultV_th_stilben -> Fill(mult_stil);
+			hmultV_th_stilben13 -> Fill(mult_stil13);
+			hmultV_th_stilbenOther -> Fill(mult_stilOther);
 			
-			hmultV_stilben_nogamma.Fill(mult_stil_nogamma);	
-			hmultV_stilben13_nogamma.Fill(mult_stil13_nogamma);	
-			hmultV_stilbenOther_nogamma.Fill(mult_stilOther_nogamma);	
+			hmultV_stilben_nogamma -> Fill(mult_stil_nogamma);	
+			hmultV_stilben13_nogamma -> Fill(mult_stil13_nogamma);	
+			hmultV_stilbenOther_nogamma -> Fill(mult_stilOther_nogamma);	
 			
-			hmultV_th_nogamma_stilben.Fill(mult_stl_th_nogamma);	
-			hmultV_th_nogamma_stilben13.Fill(mult_stl13_th_nogamma);	
-			hmultV_th_nogamma_stilbenOther.Fill(mult_stlOther_th_nogamma);	
+			hmultV_th_nogamma_stilben -> Fill(mult_stl_th_nogamma);	
+			hmultV_th_nogamma_stilben13 -> Fill(mult_stl13_th_nogamma);	
+			hmultV_th_nogamma_stilbenOther -> Fill(mult_stlOther_th_nogamma);	
 			
-			//if(circle) hChannelV_stilben.Fill(mult_digi);	
-			//if(circle&&mult_digi==1) hChannelV_stilben_mult1.Fill(mult_digi);
-			//if(circle&&mult_digi==2) hChannelV_stilben_mult2.Fill(mult_digi);
+			//if(circle) hChannelV_stilben -> Fill(mult_digi);	
+			//if(circle&&mult_digi==1) hChannelV_stilben_mult1 -> Fill(mult_digi);
+			//if(circle&&mult_digi==2) hChannelV_stilben_mult2 -> Fill(mult_digi);
 		}
 		
 		if(arr_nddigiS->GetEntriesFast()>0 && triggerS>0 && arr_telpar_8hedS->GetEntriesFast()==1 && arr_telpar_pS->GetEntriesFast()==1){
 			Nstil++;
 			mult_digi = arr_nddigiS->GetEntriesFast();
-			hmultS.Fill(mult_digi);
+			hmultS -> Fill(mult_digi);
 			
 			mult_th=0;
 			circle = stilbenNcut(Nstilben,b_EventHeaderS);
@@ -384,46 +385,46 @@ void ND_1n_multhist(){
 				if(Edep>Eth) mult_th++;
 				if(Edep>Eth && circle) mult_stil++;
 				if(circle) {
-					hChannelS_stilben.Fill(channel);
+					hChannelS_stilben -> Fill(channel);
 					x_ch = channel%9;
 					y_ch = channel/9;
-					hChannelS2D.Fill(x_ch,y_ch);
+					hChannelS2D -> Fill(x_ch,y_ch);
 				}
 				
-				if(circle&&Edep>Eth) hChannelS_th_stilben.Fill(channel);
-				if(circle&&Edep>Eth&&mult_digi==1) hChannelS_th_stilben_mult1.Fill(channel);
-				if(circle&&Edep>Eth&&mult_digi==2) hChannelS_th_stilben_mult2.Fill(channel);
+				if(circle&&Edep>Eth) hChannelS_th_stilben -> Fill(channel);
+				if(circle&&Edep>Eth&&mult_digi==1) hChannelS_th_stilben_mult1 -> Fill(channel);
+				if(circle&&Edep>Eth&&mult_digi==2) hChannelS_th_stilben_mult2 -> Fill(channel);
 				
-				if(circle&&mult_digi==1) hChannelS_stilben_mult1.Fill(channel);
-				if(circle&&mult_digi==2) hChannelS_stilben_mult2.Fill(channel);
-				hLY_steel.Fill(Edep,LY);
+				if(circle&&mult_digi==1) hChannelS_stilben_mult1 -> Fill(channel);
+				if(circle&&mult_digi==2) hChannelS_stilben_mult2 -> Fill(channel);
+				hLY_steel -> Fill(Edep,LY);
 				if(cut_gamma->IsInside(Edep,LY)) trigger_gamma=1;
 				else trigger_gamma=-1;
 				if(trigger_gamma<0){
-					hLY_steel_nogamma.Fill(Edep,LY);
+					hLY_steel_nogamma -> Fill(Edep,LY);
 					mult_nogamma++;					
 				}
 				
-				if(circle&&trigger_gamma<0) hChannelS_nogamma_stilben.Fill(channel);
-				if(circle&&trigger_gamma<0&&mult_digi==1) hChannelS_nogamma_stilben_mult1.Fill(channel);
-				if(circle&&trigger_gamma<0&&mult_digi==2) hChannelS_nogamma_stilben_mult2.Fill(channel);
+				if(circle&&trigger_gamma<0) hChannelS_nogamma_stilben -> Fill(channel);
+				if(circle&&trigger_gamma<0&&mult_digi==1) hChannelS_nogamma_stilben_mult1 -> Fill(channel);
+				if(circle&&trigger_gamma<0&&mult_digi==2) hChannelS_nogamma_stilben_mult2 -> Fill(channel);
 				
-				if(circle&&trigger_gamma<0&&Edep>Eth) hChannelS_th_nogamma_stilben.Fill(channel);
-				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==1) hChannelS_th_nogamma_stilben_mult1.Fill(channel);
-				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==2) hChannelS_th_nogamma_stilben_mult2.Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth) hChannelS_th_nogamma_stilben -> Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==1) hChannelS_th_nogamma_stilben_mult1 -> Fill(channel);
+				if(circle&&trigger_gamma<0&&Edep>Eth&&mult_digi==2) hChannelS_th_nogamma_stilben_mult2 -> Fill(channel);
 				
 				if(trigger_gamma<0 && circle) mult_stil_nogamma++;
 				if(Edep>Eth && trigger_gamma<0) mult_th_nogamma++;
 				if(Edep>Eth && circle && trigger_gamma<0) mult_stl_th_nogamma++;
 			}
-			hmultS_th.Fill(mult_th);
-			hmultS_nogamma.Fill(mult_nogamma);	
-			hmultS_stilben_nogamma.Fill(mult_stil_nogamma);	
-			hmultS_th_nogamma.Fill(mult_th_nogamma);
-			hmultS_th_nogamma_stilben.Fill(mult_stl_th_nogamma);	
+			hmultS_th -> Fill(mult_th);
+			hmultS_nogamma -> Fill(mult_nogamma);	
+			hmultS_stilben_nogamma -> Fill(mult_stil_nogamma);	
+			hmultS_th_nogamma -> Fill(mult_th_nogamma);
+			hmultS_th_nogamma_stilben -> Fill(mult_stl_th_nogamma);	
 			
-			if(circle) hmultS_stilben.Fill(mult_digi);
-			hmultS_th_stilben.Fill(mult_stil);
+			if(circle) hmultS_stilben -> Fill(mult_digi);
+			hmultS_th_stilben -> Fill(mult_stil);
 		}
 		if(arr_nddigiS->GetEntriesFast()>0 && triggerV>0 && arr_telpar_8hedV->GetEntriesFast()==1 && arr_telpar_pV->GetEntriesFast()==1) NumberV++;
 		if(arr_nddigiS->GetEntriesFast()>0 && triggerS>0 && arr_telpar_8hedS->GetEntriesFast()==1 && arr_telpar_pS->GetEntriesFast()==1) NumberS++;
@@ -433,10 +434,10 @@ void ND_1n_multhist(){
 //		if(circle && triggerS>0 && arr_telpar_8hedS->GetEntriesFast()==1 && arr_telpar_pS->GetEntriesFast()==1) NumberS++;	
 	}
 	printf("++ NumberV = %i ++++++++++++++++++\n++ NumberS = %i ++++++++++++++++++\n",NumberV,NumberS);
-	hmultV.Write();
-	hmultS.Write();
+	// hmultV.Write();
+	// hmultS.Write();
 	//hmultV.Draw();
-	hmultV.Print();
+	// hmultV.Print();
 	f_outS->Write();
 	// printf("Out file %s was created\n",outFile.Data());
 }
@@ -520,7 +521,7 @@ void stilbenCoord(){
  	 	if(i==1 || i==7) z[i]=790.0;
  	 	if(i==2 || i==6) z[i]=792.5;
  	 	if(i==3 || i==5) z[i]=793.99;
- 	 	if(i==4) 	 z[i]=794.5;
+ 	 	if(i==4) 	 	 z[i]=794.5;
  	 	
  	 }
 
