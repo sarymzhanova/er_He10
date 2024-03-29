@@ -24,45 +24,34 @@ void DrawParentTrackID(TString outFilename);
 void DrawParentPDG(TString outFilename);
 void DrawEdepVsLY(TString outFilename);
 
+TFile *f_sim,*f_reco,*f_out;
+TTree *tree_sim, *tree_reco, *tree_out;
+
 TClonesArray *arr_reco_8he,*arr_reco_p,*arr_reco_track8he,*arr_reco_trackp;
 TClonesArray *arr_reco_bdt,*arr_reco_bdp;
 TClonesArray *arr_ndtrack,*arr_ndparticle;
 TClonesArray *arr_ndpoint,*arr_nddigi,*arr_nddigi_clr;
+ER10Heto8HeEventHeader *b_EventHeader;
 
 Float_t he8_E = -1, he8_dE = -1;
 Float_t gamma_Edep = -1, gamma_LY = -1;
 Int_t trigger_8he = 0;
 Int_t trigger_gamma = 0;
 
-void AfterReco(){
-	CreateCut();		//cut_8he - события лежат на гистограмме dE-E, соответствующей событиям 8Не
-	CreateCutGamma();	//cut_gamma - вырезать события, соответствующие гамма-квантам на гистограмме NDDigi.LightYield(y) : NDDigi.Edep (x)
-
+void OpenFilesAndTrees(TString inFileLab, TString inFileReco, TString outFile) {
 	
-	TString inFilelab;
-
-//	inFilelab.Form("sim_digi_8_1nNDSteel.root");
-//	inFilelab.Form("sim_digi_8_1nNDVac.root");
-	inFilelab.Form("sim_digi_8_1nNDAl.root");
-
-	TString inFilereco = inFilelab;
-	TString parFile = "../par.root";	
-	Ssiz_t p = inFilelab.First(".");
-	inFilereco.Replace(p,5,".target.root");
-	TString outFile = inFilelab;
-	outFile.Prepend("reco_");
-	inFilelab.Prepend("../");
-	
-	TFile *f_sim,*f_reco,*f_out;
-	f_sim = new TFile(inFilelab,"READ");
-	TTree *tree_sim = (TTree*)f_sim -> Get("er");
-	f_reco = new TFile(inFilereco,"READ");
-	TTree *tree_reco = (TTree*)f_reco -> Get("er");
+	f_sim = new TFile(inFileLab,"READ");
+	tree_sim = (TTree*)f_sim -> Get("er");
+	f_reco = new TFile(inFileReco,"READ");
+	tree_reco = (TTree*)f_reco -> Get("er");
 	tree_sim->AddFriend(tree_reco);
 	f_out = new TFile(outFile,"RECREATE");
-	TTree *tree_out = new TTree("er","");
-	
-	
+	tree_out = new TTree("er","");
+
+}
+
+void InitBranchesToRead() {
+
 	arr_reco_8he = new TClonesArray("ERTelescopeParticle",1000);
 	arr_reco_p = new TClonesArray("ERTelescopeParticle",1000);
 	arr_reco_track8he = new TClonesArray("ERTelescopeTrack",1000);
@@ -75,7 +64,8 @@ void AfterReco(){
 	arr_nddigi = new TClonesArray("ERNDDigi",1000);
 	arr_nddigi_clr = new TClonesArray("ERNDDigi",1000);
 	
-	ER10Heto8HeEventHeader *b_EventHeader = new ER10Heto8HeEventHeader();	
+	b_EventHeader = new ER10Heto8HeEventHeader();	
+
 	tree_sim->SetBranchAddress("MCEventHeader.",&b_EventHeader);
 	tree_sim->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_reco_8he);
 	tree_sim->SetBranchAddress("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_reco_p);
@@ -89,7 +79,11 @@ void AfterReco(){
 	tree_sim->SetBranchAddress("NDPoint",&arr_ndpoint);
 	tree_sim->SetBranchAddress("NDDigi",&arr_nddigi);
 	tree_sim->SetBranchAddress("NDDigi",&arr_nddigi_clr);
-	
+
+}
+
+void InitBranchesToWrite() {
+
 	//tree_out->Branch("MCEventHeader.",&b_EventHeader);
 	tree_out->Branch("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_reco_8he);
 	tree_out->Branch("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_reco_p);
@@ -102,6 +96,21 @@ void AfterReco(){
 	tree_out->Branch("NDParticle",&arr_ndparticle);
 	tree_out->Branch("NDDigi_clr",&arr_nddigi_clr);
 	tree_out->Branch("NDDigi",&arr_nddigi);
+
+}
+
+void AfterReco(){
+	
+	CreateCut();		//cut_8he - события лежат на гистограмме dE-E, соответствующей событиям 8Не
+	CreateCutGamma();	//cut_gamma - вырезать события, соответствующие гамма-квантам на гистограмме NDDigi.LightYield(y) : NDDigi.Edep (x)
+
+	OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", 
+						"sim_digi_8_1nNDVac.target.root",
+						"reco_sim_digi_8_1nNDVac.root");
+	
+	InitBranchesToRead();
+	InitBranchesToWrite();	
+	
 	
 	Int_t trigger_reaction=0;
 	Int_t ndpoint_pdg, parent_trackid,parent_pdg;
@@ -161,6 +170,7 @@ void AfterReco(){
 		tree_out->Fill();
 		Clear();
 	}
+	
 	hEdE.Write();
 	hTrackID.Write();
 	hParentPDG.Write();
@@ -175,9 +185,9 @@ void AfterReco(){
 	
 
 	
-	DrawEdE(inFilereco);
-	DrawEdE(outFile);
-	DrawEdepVsLY(outFile);
+	// DrawEdE(inFileReco);
+	// DrawEdE(outFile);
+	// DrawEdepVsLY(outFile);
 	//DrawParentTrackID(outFile);
 	//DrawParentPDG(outFile);
 }

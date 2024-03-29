@@ -52,6 +52,8 @@ setup_sim_digi_8_1nNDAl.root
 sim_digi_8_1nNDAl.root
 ```
 
+This procedure have to be performed for 3 geometries (vacuum, Al, steel) resulting in 3 output files. To do it outputfilename and geometry files should be changed in sim_digi.C script.
+
 ## 3) run reconstruction
 
 Go to reco folder and launch reco script:
@@ -76,9 +78,11 @@ resulting to root file:
 sim_digi_8_1nNDAl.target.root
 ```
 
+The same have to be performed for all geometries.
+
 ## 4) processing of simulation and reconstruction results
 
-We need some comment what is doing this script
+!!!We need some comment what is doing this script!!!
 
 ```bash
 root -l AfterReco.C
@@ -89,6 +93,8 @@ It results to some canvases and file with tree
 ```bash
 reco_sim_digi_8_1nNDAl.root
 ```
+
+Have to be performed for all geometries.
 
 ## 5) data analysis
 
