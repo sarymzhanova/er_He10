@@ -100,8 +100,6 @@ void AfterReco(){
 	Int_t trigger_reaction=0;
 	
 	TH2F hEdE("EdE","EdE of He8 decay",100,0,70,100,0,160);
-	TH1F hTrackID("trackID","ID track of parent",100,-1,100);
-	TH1F hParentPDG("parentPDG","PDG of parent",3001,-1,3000);
 	
 	for(Int_t i=0;i<tree_sim->GetEntries();i++){
 		tree_sim->GetEntry(i);	
@@ -126,13 +124,13 @@ void AfterReco(){
 		Clear();
 	}
 
-	hTrackID.Write();
-	hParentPDG.Write();
+	hEdE.Write();
 	tree_out->Write();
 
 	f_out->Close();
 	f_sim->Close();
 	f_reco->Close();
+	Info("AfterReco", "Script finished");
 	
 }
 //========================================================================================================================== 
