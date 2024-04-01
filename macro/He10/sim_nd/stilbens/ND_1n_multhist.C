@@ -22,6 +22,11 @@ TFile *f_simV,*f_simS,*f_recoV,*f_recoS,*f_outV,*f_outS;
 TTree *tree_simV, *tree_recoV;
 TTree *tree_simS, *tree_recoS;
 
+TClonesArray *arr_nddigiS, *arr_ndtrackS, *arr_telpar_8hedS, *arr_telpar_pS, 
+			 *arr_nddigiV, *arr_ndtrackV, *arr_telpar_8hedV, *arr_telpar_pV;
+
+ER10Heto8HeEventHeader *b_EventHeaderS, *b_EventHeaderV;
+
 TH1I *hmultS,*hmultV,*hmultS_nogamma,*hmultV_nogamma,*hmultS_th,*hmultV_th,*hmultS_th_nogamma,*hmultV_th_nogamma;
 TH1I *hmultS_stilben, *hmultV_stilben, *hmultS_stilben13, *hmultV_stilben13, *hmultS_stilbenOther, *hmultV_stilbenOther;
 TH1I *hmultS_stilben_nogamma, *hmultV_stilben_nogamma, *hmultS_stilben13_nogamma, *hmultV_stilben13_nogamma, *hmultS_stilbenOther_nogamma, *hmultV_stilbenOther_nogamma;
@@ -203,6 +208,32 @@ void CreateHist(){
 	name.Form("LightYield vs Edep, steel, without gamma");
 	hLY_steel_nogamma = new TH2F("hLY_steel_nogamma",name.Data(),200,0,20,110,0,11);
 }
+
+void ReadBranch(){
+	arr_nddigiS = new TClonesArray("ERNDDigi",1000);
+	arr_ndtrackS = new TClonesArray("ERNDTrack",1000);
+	arr_telpar_8hedS = new TClonesArray("ERTelescopeParticle",1000);
+	arr_telpar_pS = new TClonesArray("ERTelescopeParticle",1000);
+	
+	arr_nddigiV = new TClonesArray("ERNDDigi",1000);
+	arr_ndtrackV = new TClonesArray("ERNDTrack",1000);
+	arr_telpar_8hedV = new TClonesArray("ERTelescopeParticle",1000);
+	arr_telpar_pV = new TClonesArray("ERTelescopeParticle",1000);
+	
+	b_EventHeaderS = new ER10Heto8HeEventHeader();
+	b_EventHeaderV = new ER10Heto8HeEventHeader();
+	
+	tree_simS->SetBranchAddress("NDDigi",&arr_nddigiS);
+	tree_simS->SetBranchAddress("MCEventHeader.",&b_EventHeaderS);
+	tree_simS->SetBranchAddress("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_telpar_pS);
+	tree_simS->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_telpar_8hedS);
+	
+	tree_simV->SetBranchAddress("NDDigi",&arr_nddigiV);
+	tree_simV->SetBranchAddress("MCEventHeader.",&b_EventHeaderV);
+	tree_simV->SetBranchAddress("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_telpar_pV);
+	tree_simV->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_telpar_8hedV);
+}
+
 //=================================================================================================================//
 void ND_1n_multhist(){
 	CreateCutGamma();
@@ -216,32 +247,11 @@ void ND_1n_multhist(){
 						"Ncoord_sim_digi_8_1nNDAl.root", "Ncoord_sim_digi_8_1nNDVac.root");
 	CreateHist();
 	stilbenCoord();
+	ReadBranch();
 	
-	auto arr_nddigiS = new TClonesArray("ERNDDigi",1000);
-	auto arr_ndtrackS = new TClonesArray("ERNDTrack",1000);
-	auto arr_telpar_8hedS = new TClonesArray("ERTelescopeParticle",1000);
-	auto arr_telpar_pS = new TClonesArray("ERTelescopeParticle",1000);
-	
-	auto arr_nddigiV = new TClonesArray("ERNDDigi",1000);
-	auto arr_ndtrackV = new TClonesArray("ERNDTrack",1000);
-	auto arr_telpar_8hedV = new TClonesArray("ERTelescopeParticle",1000);
-	auto arr_telpar_pV = new TClonesArray("ERTelescopeParticle",1000);
-	
-	ER10Heto8HeEventHeader *b_EventHeaderS = new ER10Heto8HeEventHeader();
-	ER10Heto8HeEventHeader *b_EventHeaderV = new ER10Heto8HeEventHeader();
-	
-	tree_simS->SetBranchAddress("NDDigi",&arr_nddigiS);
-	tree_simS->SetBranchAddress("MCEventHeader.",&b_EventHeaderS);
-	tree_simS->SetBranchAddress("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_telpar_pS);
-	tree_simS->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_telpar_8hedS);
-	
-	tree_simV->SetBranchAddress("NDDigi",&arr_nddigiV);
-	tree_simV->SetBranchAddress("MCEventHeader.",&b_EventHeaderV);
-	tree_simV->SetBranchAddress("TelescopeParticle_Telescope_proton_DoubleSi_R_XY_1000010010",&arr_telpar_pV);
-	tree_simV->SetBranchAddress("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080",&arr_telpar_8hedV);
 	
 	Bool_t circle;
-	Int_t triggerS,triggerV,trigger_gamma=-1;
+	Int_t triggerS,triggerV,trigger_gamma=-1,trigger_13=0;
 	
 	Int_t mult_nINcone=0;
 	Int_t x_ch,y_ch;
@@ -289,11 +299,14 @@ void ND_1n_multhist(){
 			mult_stilOther_nogamma=0;
 			mult_stl13_th_nogamma=0;
 			mult_stlOther_th_nogamma=0;
+
+			trigger_13=0;
 			
 			for(Int_t k=0;k<mult_digi;k++){
 				Edep = ((ERNDDigi*)arr_nddigiV->At(k))->EdepN1();
 				LY = ((ERNDDigi*)arr_nddigiV->At(k))->LightYield();
 				channel = ((ERNDDigi*)arr_nddigiV->At(k))->Channel();
+				if(channel == 13) trigger_13=1;
 				if(Edep>Eth) mult_th++;
 				if(Edep>Eth && circle) mult_stil++;
 				if(circle) {
@@ -341,6 +354,10 @@ void ND_1n_multhist(){
 				if(Edep>Eth && trigger_gamma<0 && circle&&channel ==13) mult_stl13_th_nogamma++;
 				if(Edep>Eth && trigger_gamma<0 && circle&&channel !=13) mult_stilOther_nogamma++;
 			}
+			//if(trigger_13<1) printf("+++++ %i\t%i\t%i\t%i\t%i\n",i,mult_digi,mult_digiOther,channel,trigger_13);
+			//if(trigger_13==1) printf("===== %i\t%i\t%i\t%i\t%i\n",i,mult_digi,mult_digi13,channel,trigger_13);
+
+
 			hmultV_th -> Fill(mult_th);
 			hmultV_nogamma -> Fill(mult_nogamma);	
 			hmultV_th_nogamma -> Fill(mult_th_nogamma);		
