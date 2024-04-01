@@ -364,19 +364,19 @@ void ND_1n_multhist(){
 			
 			if(circle) hmultV_stilben -> Fill(mult_digi);
 			 hmultV_stilben13 -> Fill(mult_digi13);
-			 hmultV_stilbenOther -> Fill(mult_digiOther);
+			if(trigger_13<1) hmultV_stilbenOther -> Fill(mult_digiOther);
 			 
 			hmultV_th_stilben -> Fill(mult_stil);
 			hmultV_th_stilben13 -> Fill(mult_stil13);
-			hmultV_th_stilbenOther -> Fill(mult_stilOther);
+			if(trigger_13<1) hmultV_th_stilbenOther -> Fill(mult_stilOther);
 			
 			hmultV_stilben_nogamma -> Fill(mult_stil_nogamma);	
 			hmultV_stilben13_nogamma -> Fill(mult_stil13_nogamma);	
-			hmultV_stilbenOther_nogamma -> Fill(mult_stilOther_nogamma);	
+			if(trigger_13<1) hmultV_stilbenOther_nogamma -> Fill(mult_stilOther_nogamma);	
 			
 			hmultV_th_nogamma_stilben -> Fill(mult_stl_th_nogamma);	
 			hmultV_th_nogamma_stilben13 -> Fill(mult_stl13_th_nogamma);	
-			hmultV_th_nogamma_stilbenOther -> Fill(mult_stlOther_th_nogamma);	
+			if(trigger_13<1) hmultV_th_nogamma_stilbenOther -> Fill(mult_stlOther_th_nogamma);	
 			
 			//if(circle) hChannelV_stilben -> Fill(mult_digi);	
 			//if(circle&&mult_digi==1) hChannelV_stilben_mult1 -> Fill(mult_digi);
