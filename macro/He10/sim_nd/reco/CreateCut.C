@@ -8,8 +8,8 @@ TCutG *cut_8he;
 
 void CreateCut(){
    cut_8he = new TCutG("cut_8he",24);
-   cut_8he->SetVarX("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080.fEdepInThinStation");
-   cut_8he->SetVarY("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080.fEdepInThickStation");
+   cut_8he->SetVarX("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080.fEdepInThinStation[0]");
+   cut_8he->SetVarY("TelescopeParticle_Telescope_he8_SingleSi_SSD20_XTelescope_he8_SingleSi_SSD20_1_Y_1000020080.fEdepInThickStation[0]");
    cut_8he->SetTitle("Graph");
    cut_8he->SetFillColor(1);
    cut_8he->SetPoint(0,18.6774,162.562);
