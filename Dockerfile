@@ -32,6 +32,9 @@ RUN cd /opt && git clone https://github.com/flnr-jinr/er &&\
 	cd build &&\
 	cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DACCULINNA_GO4=/opt/accdaq/install &&\
 	make -j4
+#RUN echo "[init]" >> /opt/er/.git/config
+#RUN echo "	defaultBranch = ${ER}"
 
 COPY entrypoint.sh /etc/entrypoint.sh
+RUN echo ". /etc/entrypoint.sh" >> /home/jovyan/.bashrc
 ENTRYPOINT ["/etc/entrypoint.sh"]
