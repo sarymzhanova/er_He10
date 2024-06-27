@@ -21,7 +21,7 @@
 
 #include "../reco/CreateCut.C"
 #include "../reco/CreateCutGamma.C"
-#include "cut.C"
+// #include "cut.C"
 
 TFile *f_simV,*f_simS,*f_recoV,*f_recoS,*f_outV,*f_outS;
 TTree *tree_simV, *tree_recoV;
@@ -54,13 +54,13 @@ void ND_1n_analysis() {
 	// OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", "../sim_digi_8_1nNDVac.root",
 	// 		"../reco/reco_sim_digi_8_1nNDVac.root", "../reco/reco_sim_digi_8_1nNDVac.root");
 
-	OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", "../sim_digi_8_1nNDVac.root",
-			"../reco/sim_digi_8_1nNDVac.target.root", "../reco/sim_digi_8_1nNDVac.target.root");
+	OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", "../sim_digi_8_1nNDSteel.root",
+			"../reco/sim_digi_8_1nNDVac.target.root", "../reco/sim_digi_8_1nNDSteel.target.root");
 
 
 	CreateCut();		//cut_8he - события лежат на гистограмме dE-E, соответствующей событиям 8Не
 	CreateCutGamma();
-	cutGamma();
+	// cutGamma();
 
 	//threshold of energy deposit in stilben; in MeV
 	// Double_t energyThr = 1.5;
@@ -175,7 +175,7 @@ void ND_1n_analysis() {
 				// , "col"
 	);
 	// cut_gamma->Draw("same");
-	cutg->Draw("same");
+	// cutg->Draw("same");
 	std::cout << "\t" << number << std::endl;
 	// tree_simV->Scan("NDDigi.fLightYield:NDDigi.fEdep",
 	// 			// "NDDigi.fEdep>1.5"

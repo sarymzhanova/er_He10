@@ -29,7 +29,6 @@
 
 #endif
 
-
 void sim_digi (Int_t nEvents = 100000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
@@ -42,8 +41,8 @@ void sim_digi (Int_t nEvents = 100000) {
   Double_t targetD2Thickness = 0.6;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_target_D2_geo.C
   //---------------------Files-----------------------------------------------
   
-//	TString outFile= "sim_digi_8_1nNDSteel.root";
-	TString outFile= "sim_digi_8_1nNDVac.root";
+  	TString outFile= "sim_digi_8_1nNDSteel.root";
+//	TString outFile= "sim_digi_8_1nNDVac.root";
 	// TString outFile= "sim_digi_8_1nNDAl.root";
 	TString datFile= "10he_0p_r.dat";
   
@@ -59,8 +58,8 @@ void sim_digi (Int_t nEvents = 100000) {
   TString interactionVol = "target3HVol";
 
 
-//  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.root";  	//steel housing + aluminium shell
- TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.vac.root";  //vacuum shell
+ TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.root";  	//steel housing + aluminium shell
+//  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.vac.root";  //vacuum shell
   // TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.al.root";	//aluminium shell
     
   // -----   Timer   --------------------------------------------------------
@@ -268,7 +267,9 @@ void sim_digi (Int_t nEvents = 100000) {
    run->AddTask(ndDigitizer);
    
   //-------Set visualisation flag to true------------------------------------
-  //run->SetStoreTraj(kTRUE);
+  //run->SetStoreTraj(kTRUE);   //enables storage of GeoTracks
+                                //to turn on MCTracks go to data/ERStack.cxx
+                                //l.336  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");

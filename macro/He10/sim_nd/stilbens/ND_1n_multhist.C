@@ -308,7 +308,7 @@ void ND_1n_multhist(){
 				channel = ((ERNDDigi*)arr_nddigiV->At(k))->Channel();
 				if(channel == 13) trigger_13=1;
 				if(Edep>Eth) mult_th++;
-				if(Edep>Eth && circle) mult_stil++;
+				if(Edep>Eth && circle) mult_stil++;	//убрать circle
 				if(circle) {
 					hChannelV_stilben -> Fill(channel);
 					x_ch = channel%9;
@@ -332,7 +332,7 @@ void ND_1n_multhist(){
 					hLY_vac_nogamma -> Fill(Edep,LY);
 					mult_nogamma++;	
 				}
-				
+				//лишнее
 				if(circle&&trigger_gamma<0) hChannelV_nogamma_stilben -> Fill(channel);
 				if(circle&&trigger_gamma<0&&mult_digi==1) hChannelV_nogamma_stilben_mult1 -> Fill(channel);
 				if(circle&&trigger_gamma<0&&mult_digi==2) hChannelV_nogamma_stilben_mult2 -> Fill(channel);
@@ -345,8 +345,8 @@ void ND_1n_multhist(){
 				if(Edep>Eth && trigger_gamma<0) mult_th_nogamma++;
 				if(Edep>Eth && circle && trigger_gamma<0) mult_stl_th_nogamma++;
 				
-				if(circle&&channel ==13) mult_digi13++;
-				if(circle&&channel !=13) mult_digiOther++;
+				// if(circle&&channel ==13) mult_digi13++;
+				// if(circle&&channel !=13) mult_digiOther++;
 				if(Edep>Eth && circle&&channel ==13) mult_stil13++;
 				if(Edep>Eth && circle&&channel !=13) mult_stilOther++;
 				if(trigger_gamma<0 && circle&&channel ==13) mult_stil13_nogamma++;
@@ -356,7 +356,8 @@ void ND_1n_multhist(){
 			}
 			//if(trigger_13<1) printf("+++++ %i\t%i\t%i\t%i\t%i\n",i,mult_digi,mult_digiOther,channel,trigger_13);
 			//if(trigger_13==1) printf("===== %i\t%i\t%i\t%i\t%i\n",i,mult_digi,mult_digi13,channel,trigger_13);
-
+			//при подсчете модифиц множественностей проверяю порог, гамму. 
+			//При заполнении гистограмм этими множественностями проверяю круг, триггер13
 
 			hmultV_th -> Fill(mult_th);
 			hmultV_nogamma -> Fill(mult_nogamma);	
@@ -364,7 +365,9 @@ void ND_1n_multhist(){
 			
 			if(circle) hmultV_stilben -> Fill(mult_digi);
 			 hmultV_stilben13 -> Fill(mult_digi13);
-			if(trigger_13<1) hmultV_stilbenOther -> Fill(mult_digiOther);
+			// if(trigger_13<1) hmultV_stilbenOther -> Fill(mult_digiOther);
+			if(trigger_13==1 && circle) 
+			if(trigger_13<1 && circle) hmultV_stilbenOther -> Fill(mult_digi);
 			 
 			hmultV_th_stilben -> Fill(mult_stil);
 			hmultV_th_stilben13 -> Fill(mult_stil13);
