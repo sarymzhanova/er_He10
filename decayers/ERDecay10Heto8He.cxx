@@ -317,11 +317,11 @@ Bool_t ERDecay10Heto8He::Stepping() {
                                  fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n1TrackNb, fn->Mass(), 0);
-//      gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),	
-//                                 fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
-//                                 fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
-//                                 gMC->TrackTime(), 0., 0., 0.,
-//                                 kPDecay, n2TrackNb, fn->Mass(), 0);		//убрана трассировка второго нейтрона для изучения ND
+     gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),	
+                                fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
+                                fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                gMC->TrackTime(), 0., 0., 0.,
+                                kPDecay, n2TrackNb, fn->Mass(), 0);		//убрана трассировка второго нейтрона для изучения ND
       gMC->StopTrack();
       fDecayFinish = kTRUE;
       gMC->SetMaxStep(100.);

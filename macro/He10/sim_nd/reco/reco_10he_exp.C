@@ -28,9 +28,9 @@ int fTriggerNum = 1;
 void reco_10he_exp(){
   //---------------------Files-----------------------------------------------
 
-//	TString inFile= "sim_digi_8_1nNDSteel.root";
+	TString inFile= "sim_digi_8_1nNDSteel.root";
 //	TString inFile= "sim_digi_8_1nNDVac.root";
-	TString inFile= "sim_digi_8_1nNDAl.root";
+	// TString inFile= "sim_digi_8_1nNDAl.root";
 
 
 

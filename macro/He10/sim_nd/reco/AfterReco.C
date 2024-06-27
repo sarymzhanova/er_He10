@@ -89,9 +89,15 @@ void AfterReco(){
 	CreateCut();		//cut_8he - события лежат на гистограмме dE-E, соответствующей событиям 8Не
 	CreateCutGamma();	//cut_gamma - вырезать события, соответствующие гамма-квантам на гистограмме NDDigi.LightYield(y) : NDDigi.Edep (x)
 
-	OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", 
-						"sim_digi_8_1nNDVac.target.root",
-						"reco_sim_digi_8_1nNDVac.root");
+	// OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", 
+	// 					"sim_digi_8_1nNDVac.target.root",
+	// 					"reco_sim_digi_8_1nNDVac.root");
+	OpenFilesAndTrees("../sim_digi_8_1nNDSteel.root", 
+						"sim_digi_8_1nNDSteel.target.root",
+						"reco_sim_digi_8_1nNDSteel.root");
+	// OpenFilesAndTrees("../sim_digi_8_1nNDAl.root", 
+	// 					"sim_digi_8_1nNDAl.target.root",
+	// 					"reco_sim_digi_8_1nNDAl.root");										
 	
 	InitBranchesToRead();
 	InitBranchesToWrite();	
@@ -107,8 +113,9 @@ void AfterReco(){
 		trigger_reaction = (Int_t)b_EventHeader->GetTrigger();
 
 		//both telescopes (forward square and backward annual) were fired
-		if(arr_reco_8he->GetEntries() == 1 && arr_reco_p->GetEntries() == 1 ){
-			
+		if(arr_reco_8he->GetEntries() >0 && arr_reco_p->GetEntries() >0 ){
+		// if(trigger_reaction && arr_reco_8he->GetEntries() == 1 && arr_reco_p->GetEntries() == 1 ){
+		// if(arr_reco_8he->GetEntries() == 1 && arr_reco_p->GetEntries() == 1 ){			
 			he8_E = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThickStation();
 			he8_dE = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThinStation();
 			if(cut_8he->IsInside(he8_dE, he8_E)) {			

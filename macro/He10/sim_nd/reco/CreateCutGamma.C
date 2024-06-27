@@ -7,7 +7,7 @@
 TCutG *cut_gamma;
 
 void CreateCutGamma(){
-   cut_gamma = new TCutG("CUTG",12);
+   cut_gamma = new TCutG("cut_gamma",12);
    cut_gamma->SetVarX("NDDigi.fEdep");
    cut_gamma->SetVarY("NDDigi.fLightYield");
    cut_gamma->SetTitle("Graph");
@@ -23,4 +23,5 @@ void CreateCutGamma(){
    cut_gamma->SetPoint(8,6.993976,5.937374);
    cut_gamma->SetPoint(9,0.11,0);
    cut_gamma->SetPoint(10,-0.1006886,0);
+   cut_gamma->SetPoint(11,-0.1006886,0.002020071);
 }

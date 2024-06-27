@@ -5,19 +5,31 @@
 #include "TSystem.h"
 #include "TStopwatch.h"
 
+//FairRoot includes
+#include "FairPrimaryGenerator.h"
+
 //ExpertRoot includes
 #include "ERRunSim.h"
-#include <ER10Heto8HeEventHeader.h>
-#include <ERBeamDetSetup.h>
-#include <ERTelescopeSetup.h>
-#include <ERRTelescopeGeoComponentDoubleSi.h>
-#include <ERTelescopeDigitizer.h>
-#include <ERBeamDetDigitizer.h>
+#include "ER10Heto8HeEventHeader.h"
+#include "ERBeamDetSetup.h"
+#include "ERTelescopeSetup.h"
+#include "ERRTelescopeGeoComponentDoubleSi.h"
+#include "ERTelescopeDigitizer.h"
+#include "ERBeamDetDigitizer.h"
+#include "ERCave.h"
+#include "ERTarget.h"
+#include "ERQTelescopeGeoComponentSingleSi.h"
+#include "ERTelescope.h"
+#include "ERBeamDet.h"
+#include "ERND.h"
+#include "ERIonMixGenerator.h"
+#include "ERDecay10Heto8He.h"
+#include "ERNDDigitizer.h"
+#include "FairParRootFileIo.h"
 
 #endif
 
-
-void sim_digi (Int_t nEvents = 1000) {
+void sim_digi (Int_t nEvents = 100000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -29,9 +41,9 @@ void sim_digi (Int_t nEvents = 1000) {
   Double_t targetD2Thickness = 0.6;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_target_D2_geo.C
   //---------------------Files-----------------------------------------------
   
-//	TString outFile= "sim_digi_8_1nNDSteel.root";
+  	TString outFile= "sim_digi_8_1nNDSteel.root";
 //	TString outFile= "sim_digi_8_1nNDVac.root";
-	TString outFile= "sim_digi_8_1nNDAl.root";
+	// TString outFile= "sim_digi_8_1nNDAl.root";
 	TString datFile= "10he_0p_r.dat";
   
 
@@ -46,9 +58,9 @@ void sim_digi (Int_t nEvents = 1000) {
   TString interactionVol = "target3HVol";
 
 
-//  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.root";  	//steel housing + aluminium shell
+ TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.root";  	//steel housing + aluminium shell
 //  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.vac.root";  //vacuum shell
-  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.al.root";	//aluminium shell
+  // TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.10he.8m.al.root";	//aluminium shell
     
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
@@ -255,7 +267,9 @@ void sim_digi (Int_t nEvents = 1000) {
    run->AddTask(ndDigitizer);
    
   //-------Set visualisation flag to true------------------------------------
-  //run->SetStoreTraj(kTRUE);
+  //run->SetStoreTraj(kTRUE);   //enables storage of GeoTracks
+                                //to turn on MCTracks go to data/ERStack.cxx
+                                //l.336  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
