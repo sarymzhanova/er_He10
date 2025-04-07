@@ -139,26 +139,27 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
     ERMCTrack *mctrack;
 
     Float_t dEloss,Pin,Pxin,Pyin,Pzin;
-    Float_t Eloss,Ekin;
+    Float_t Eloss_Si_beam=0,Eloss_Si_tot=0,Ekin;
     Float_t ThetaX,ThetaY;
     TVector3 vPin;
     Int_t motherID,PID;
 
     TH1F *hEkin = new TH1F("hEkin","",100,490,500);
     TH1F *hPtheta = new TH1F("hPtheta","",100,-0.02,0.25);
+    TH1F *hEloss_Si_beam = new TH1F("hEloss_Si_beam","",100,-1,3);
+    TH1F *hEloss_Si_tot = new TH1F("hEloss_Si_tot","",100,-1,25);
 
     
     Double_t ion_mass;
     ion_mass = DefineMass(filename);
     
 
-
     // for(Int_t i=0;i<10;i++){
     for(Int_t i=0;i<tree_sim->GetEntries();i++){
         tree_sim->GetEntry(i);
         mult_mctrack = arr_mctrack->GetEntriesFast();
         mult_Sipoint = arr_Sipoint->GetEntriesFast();
-        // printf("= %i ==================================================\n",i);
+
         for(Int_t k=0;k<mult_Sipoint;k++){
             dEloss = ((ERPoint*)arr_Sipoint->At(k))->GetEnergyLoss();
             motherID = ((ERPoint*)arr_Sipoint->At(k))->GetMot0TrackID();
@@ -174,20 +175,29 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
             Pyin = 1000*((ERPoint*)arr_Sipoint->At(k))->GetPyIn();
             Pzin = 1000*((ERPoint*)arr_Sipoint->At(k))->GetPzIn();
             vPin.SetXYZ(Pxin,Pyin,Pzin);
-            // printf("MomentumIn\t%f\t%f\t%f\t%f\n",Pin,Pxin,Pyin,Pzin);
+
+            Eloss_Si_tot+=dEloss;
+
             if(motherID==-1){
                 Ekin = TMath::Sqrt(ion_mass*ion_mass+Pin*Pin) - ion_mass;
-                // printf("Ekin %f\tEloss\t%f\n",Ekin,dEloss);
+                // 
                 ThetaX = TMath::ATan(Pxin/Pzin);
                 ThetaY = TMath::ATan(Pyin/Pzin);
                 // printf("ThetaX\t%f\tThetaY\t%f\tTheta\t%f\n",ThetaX,ThetaY,vPin.Theta());
+                Eloss_Si_beam+=dEloss;
 
                 hEkin->Fill(Ekin);
                 hPtheta->Fill(vPin.Theta());
+
+                // printf("%i\tEloss beam %f\tdEloss\t%f\n",i,Eloss_Si_beam,dEloss);
+                
             }
         }
+        hEloss_Si_beam->Fill(Eloss_Si_beam);
+        hEloss_Si_tot->Fill(Eloss_Si_tot);
 
-
+        Eloss_Si_beam=0;
+        Eloss_Si_tot=0;
     }
     cout << endl << endl;
     cout << "Macro finished succesfully." << endl;
@@ -196,5 +206,5 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
     // hEkin->Draw();
 
     // TCanvas c2;
-    hPtheta->Draw();
+    // hPtheta->Draw();
 }
