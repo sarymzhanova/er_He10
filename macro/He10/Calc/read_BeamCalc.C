@@ -146,6 +146,8 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
 
     TH1F *hEkin = new TH1F("hEkin","",100,490,500);
     TH1F *hPtheta = new TH1F("hPtheta","",100,-0.02,0.25);
+    TH1F *hPthetaX = new TH1F("hTan_thetaX","",1000,-0.3,0.3);
+    TH1F *hPthetaY = new TH1F("hTan_thetaY","",1000,-0.3,0.3);
     TH1F *hEloss_Si_beam = new TH1F("hEloss_Si_beam","",100,-1,3);
     TH1F *hEloss_Si_tot = new TH1F("hEloss_Si_tot","",100,-1,25);
 
@@ -181,13 +183,17 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
             if(motherID==-1){
                 Ekin = TMath::Sqrt(ion_mass*ion_mass+Pin*Pin) - ion_mass;
                 // 
-                ThetaX = TMath::ATan(Pxin/Pzin);
-                ThetaY = TMath::ATan(Pyin/Pzin);
+                ThetaX = Pxin/Pzin;
+                ThetaY = Pyin/Pzin;
+                // ThetaX = TMath::ATan(Pxin/Pzin);
+                // ThetaY = TMath::ATan(Pyin/Pzin);
                 // printf("ThetaX\t%f\tThetaY\t%f\tTheta\t%f\n",ThetaX,ThetaY,vPin.Theta());
                 Eloss_Si_beam+=dEloss;
 
                 hEkin->Fill(Ekin);
                 hPtheta->Fill(vPin.Theta());
+                hPthetaX->Fill(ThetaX);
+                hPthetaY->Fill(ThetaY);
 
                 // printf("%i\tEloss beam %f\tdEloss\t%f\n",i,Eloss_Si_beam,dEloss);
                 
@@ -207,4 +213,5 @@ void read_BeamCalc(TString filename = "BeamCalc_proton_500AMeV.root"){
 
     // TCanvas c2;
     // hPtheta->Draw();
+    
 }
