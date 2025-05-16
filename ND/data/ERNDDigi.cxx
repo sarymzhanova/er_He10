@@ -9,6 +9,12 @@
 
 #include "ERNDDigi.h"
 
+ERNDDigi::ERNDDigi(ERChannel stilbenNb, float edep, float lightYoeld, float time, 
+				   float neutronProb, float tac/*-1*/)
+	: ERDigi(edep, time, stilbenNb), fLightYield(lightYoeld),
+		fNeutronProb(neutronProb), fTAC(tac) 
+{}
+
 ERNDDigi::ERNDDigi(ERChannel stilbenNb, float edep, float edep_n1, float edep_n2, float edep_mis, int parentTrackID, float lightYoeld, float time, 
 				   float time_n1,float time_n2,float time_mis,
 				   float neutronProb, float x_in, float y_in, float z_in, float tac/*-1*/)

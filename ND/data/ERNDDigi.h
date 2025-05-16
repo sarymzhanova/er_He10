@@ -16,6 +16,8 @@
 class ERNDDigi : public ERDigi {
  public:
   ERNDDigi() = default;
+  ERNDDigi(ERChannel stilbenNb, float edep, float lightYield, 
+           float time, float neutronProb, float tac = -1.);
   ERNDDigi(ERChannel stilbenNb, float edep, float edep_n1, float edep_n2, float edep_mis, int parentTrackID, float lightYield, 
            float time, float time_n1,float time_n2,float time_mis,float neutronProb, float x_in, float y_in, float z_in, float tac = -1.);	//sonya:new variables x_in,y_in,z_in - enter point of neutron (proton in fact) in stilben
            											//sonya:new variables edep_n1 - energy deposit of n1,

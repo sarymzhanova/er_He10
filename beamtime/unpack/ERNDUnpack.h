@@ -19,6 +19,9 @@ class ERNDUnpack : public ERUnpack {
   virtual std::vector<TString> InputBranchNames() const;
   virtual void UnpackSignalFromStations();
   void AddNDDigi(float edep, float time, float tac, ERChannel channelNb);
+  void AddNDDigi(const float edep, const float time, const float tac, 
+                 const ERChannel channelNb, float edep_n1, float edep_n2, float edep_mis, int parentTrackID, float lightYield, 
+                 float time_n1,float time_n2,float time_mis,float neutronProb, float x_in, float y_in, float z_in);
   void ApplyCalibrations(const ERChannel channel, float& amp, float& time, float& tac);
   Bool_t CheckSetup();
  protected:

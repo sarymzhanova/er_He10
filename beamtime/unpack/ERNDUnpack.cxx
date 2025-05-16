@@ -87,6 +87,15 @@ void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac,
         ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
 }
 //--------------------------------------------------------------------------------------------------
+void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac, 
+                           const ERChannel channelNb, float edep_n1, float edep_n2, float edep_mis, int parentTrackID, float lightYield, 
+                           float time_n1,float time_n2,float time_mis,float neutronProb, float x_in, float y_in, float z_in) { 
+    auto* digiCollection = digi_collections_["NDDigis"];
+    new((*digiCollection) [digiCollection->GetEntriesFast()])
+        ERNDDigi(channelNb, edep, edep_n1, edep_n2, edep_mis, parentTrackID, lightYield, 
+           time, time_n1,time_n2,time_mis,neutronProb, x_in, y_in, z_in, tac);
+}
+//--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {
     const auto stationsInConfig = setup_configuration_->GetStationList(detector_name_);
     const auto stationInConfig = [stationsInConfig, this](const TString stationName,
