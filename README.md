@@ -43,7 +43,7 @@ the docker-image [docker](https://www.docker.com) to deploy ER installation.
 
 ```
 git clone https://github.com/FLNR-JINR/er/ .
-git checkout dev
+git checkout ND_2n_track
 ```
 
 3. Build docker image with _ER_:
