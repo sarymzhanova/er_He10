@@ -49,22 +49,28 @@ git checkout dev
 3. Build docker image with _ER_:
 
 ```
-docker build --build-arg ER=dev -t er .
+docker build -t er_nd_2n_track .
 ```
 
 4. Run _er_ container, compile updated sources, run simulation:
 
 ```
-docker run --entrypoint /bin/bash --net=host -v /home/vitaliy/er:/opt/er -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -v /tmp/.X11-unix:/tmp/.X11-unix  -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw -e DISPLAY=$DISPLAY -it er
+docker run --entrypoint /bin/bash --net=host -v $(pwd):/opt/er -v $(pwd)/macro/He10/sim_nd:/opt/run \
+    -w /opt/run -v /tmp/.X11-unix:/tmp/.X11-unix  \
+    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw -e DISPLAY=$DISPLAY -it er_nd_2n_track:latest
+
 cd /opt/er
 mkdir build
 cd build
 export SIMPATH=/opt/FairSoft/
 export FAIRROOTPATH=/opt/FairRoot/
 cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
-make
+make -j4
 source ./config.sh
 # to run with new build
+cd /opt/er/macro/geo
+root -l create_target_10he_3h_steel_geo.C
+root -l create_ND_geo_exp1904_10he_8m.C
 cd /opt/run/
 root -l sim_digi.C
 ```
