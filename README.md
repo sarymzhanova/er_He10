@@ -96,6 +96,7 @@ make -j4
 ```
 
 5. Run simulation
+
 Here is an example of a Monte-Carlo simulation of 3H(8He,p)10He reaction and following decay of 10He.
 ```
 #run docker container from the root directory of the project
@@ -120,6 +121,7 @@ cd /opt/er/macro/He10/sim_nd
 root -l 'sim_digi.C(1000)'
 ```
 6. Run reconstruction and analysis
+
 This is an example of processing of raw data (unpacking, digitization and reconstruction) 
 obtained in 2H(8He,3He)7H reaction:
 
