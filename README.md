@@ -52,13 +52,23 @@ git checkout ND_2n_track
 docker build -t er_nd_2n_track .
 ```
 
-4. Run _er_ container, compile updated sources, run simulation:
+4. Run _er_ container, compile updated sources:
+
 
 ```
-docker run --entrypoint /bin/bash --net=host -v $(pwd):/opt/er -v $(pwd)/macro/He10/sim_nd:/opt/run \
-    -w /opt/run -v /tmp/.X11-unix:/tmp/.X11-unix  \
-    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw -e DISPLAY=$DISPLAY -it er_nd_2n_track:latest
+#run docker container
+docker run \
+    --entrypoint /bin/bash \
+    --net=host \
+    -v $(pwd):/opt/er \
+    -v $(pwd)/macro:/opt/run \
+    -v /tmp/.X11-unix:/tmp/.X11-unix  \
+    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw \
+    -w /opt/run \
+    -e DISPLAY=$DISPLAY \
+    -it er_nd_2n_track:latest
 
+#when run for the first time the ER classes have to be compiled
 cd /opt/er
 mkdir build
 cd build
@@ -67,19 +77,77 @@ export FAIRROOTPATH=/opt/FairRoot/
 cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
 make -j4
 source ./config.sh
-# to run with new build
-cd /opt/er/macro/geo
-root -l create_target_10he_3h_steel_geo.C
-root -l create_ND_geo_exp1904_10he_8m.C
-cd /opt/run/
-root -l sim_digi.C
-```
 
-where -v is used to map your host working directory '/home/vitaliy/er/macro/EXP1904_H7' and working 
+```
+here -v is used to map your host working directory '$(pwd)/macro' and working 
 directory  '/opt/run' inside container; -w /opt/run - set working directory for interactive session;
 -e DISPLAY=$DISPLAY is needed to forward gui from container to host machine; -it - to set interactive session.
 
-Redifinition of `entrypoint` is needed because `er/build/config.sh` may not exists in mapped volume.
+In case of adding new classes supplement CMakeLists.txt in the folder with you class files. 
+Modify following blocks of code -- INCLUDE_DIRECTORIES and SRCS.
+
+To compile your changes run docker container and execute:
+
+```
+cd /opt/er/build
+cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
+make -j4
+
+```
+
+5. Run simulation
+Here is an example of a Monte-Carlo simulation of 3H(8He,p)10He reaction and following decay of 10He.
+```
+#run docker container from the root directory of the project
+docker run \
+    --entrypoint /bin/bash \
+    --net=host \
+    -v $(pwd):/opt/er \
+    -v $(pwd)/macro:/opt/run \
+    -v /tmp/.X11-unix:/tmp/.X11-unix  \
+    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw \
+    -w /opt/run \
+    -e DISPLAY=$DISPLAY \
+    -it er_nd_2n_track:latest
+
+#prepare files with target and wall of neutron detectors
+cd /opt/er/macro/geo
+root -l create_target_10he_3h_steel_geo.C
+root -l create_ND_geo_exp1904_10he_8m.C
+
+#run your simulation with 1000 events
+cd /opt/er/macro/He10/sim_nd
+root -l 'sim_digi.C(1000)'
+```
+6. Run reconstruction and analysis
+This is an example of processing of raw data (unpacking, digitization and reconstruction) 
+obtained in 2H(8He,3He)7H reaction:
+
+```
+#run docker container
+docker run \
+    --entrypoint /bin/bash \
+    --net=host \
+    -v $(pwd):/opt/er \
+    -v $(pwd)/macro:/opt/run \
+    -v /tmp/.X11-unix:/tmp/.X11-unix  \
+    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw \
+    -w /opt/run \
+    -e DISPLAY=$DISPLAY \
+    -it er_nd_2n_track:latest
+
+cd /opt/run/EXP1904_H7/input
+
+#download data file. NB! link is temporary, serves only as an example
+wget https://filebin.net/hetwtgks8xort1oh/h7_ct_18_0001.lmd
+
+bash prepare_unpack.sh -f h7_ct_18_0001.lmd
+
+cd /opt/accdaq
+bash run.sh
+cd /opt/run/EXP1904_H7
+bash run.sh -f input/h7_ct_18_0001.lmd.root
+```
 
 ## Step by Step installation
 
