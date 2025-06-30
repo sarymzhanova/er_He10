@@ -92,12 +92,22 @@ void AfterReco(){
 	// OpenFilesAndTrees("../sim_digi_8_1nNDVac.root", 
 	// 					"sim_digi_8_1nNDVac.target.root",
 	// 					"reco_sim_digi_8_1nNDVac.root");
-	OpenFilesAndTrees("../sim_digi_8_1nNDSteel.root", 
-						"sim_digi_8_1nNDSteel.target.root",
-						"reco_sim_digi_8_1nNDSteel.root");
-	// OpenFilesAndTrees("../sim_digi_8_1nNDAl.root", 
-	// 					"sim_digi_8_1nNDAl.target.root",
-	// 					"reco_sim_digi_8_1nNDAl.root");										
+	// OpenFilesAndTrees("../sim_digi_8_1nNDSteel.root", 
+	// 					"sim_digi_8_1nNDSteel.target.root",
+	// 					"reco_sim_digi_8_1nNDSteel.root");
+	OpenFilesAndTrees("../sim_digi_8_1nNDAl.root", 
+						"sim_digi_8_1nNDAl.target.root",
+						"reco_sim_digi_8_1nNDAl.root");		
+
+	// OpenFilesAndTrees("../sim_digi_8_2nNDSteel.root", 
+	// 					"sim_digi_8_2nNDSteel.target.root",
+	// 					"reco_sim_digi_8_2nNDSteel.root");
+	// OpenFilesAndTrees("../sim_digi_8_2nNDVac.root", 
+	// 					"sim_digi_8_2nNDVac.target.root",
+	// 					"reco_sim_digi_8_2nNDVac.root");
+	// OpenFilesAndTrees("../sim_digi_8_2nNDAl.root", 
+	// 					"sim_digi_8_2nNDAl.target.root",
+	// 					"reco_sim_digi_8_2nNDAl.root");																		
 	
 	InitBranchesToRead();
 	InitBranchesToWrite();	
@@ -106,6 +116,7 @@ void AfterReco(){
 	Int_t trigger_reaction=0;
 	
 	TH2F hEdE("EdE","EdE of He8 decay",100,0,70,100,0,160);
+	TH2F hEdE_total("EdE_total","EdE all events in telescope",1000,0,70,1000,0,160);
 	
 	for(Int_t i=0;i<tree_sim->GetEntries();i++){
 		tree_sim->GetEntry(i);	
@@ -118,6 +129,7 @@ void AfterReco(){
 		// if(arr_reco_8he->GetEntries() == 1 && arr_reco_p->GetEntries() == 1 ){			
 			he8_E = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThickStation();
 			he8_dE = ((ERTelescopeParticle*)arr_reco_8he->At(0))->GetEdepInThinStation();
+			hEdE_total.Fill(he8_dE,he8_E);
 			if(cut_8he->IsInside(he8_dE, he8_E)) {			
 				trigger_8he = 1;
 				hEdE.Fill(he8_dE,he8_E);
@@ -132,6 +144,7 @@ void AfterReco(){
 	}
 
 	hEdE.Write();
+	hEdE_total.Write();
 	tree_out->Write();
 
 	f_out->Close();
