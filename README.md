@@ -164,7 +164,7 @@ root -l DrawPID.C
 ```
 This is the result of an expected reconstruction of the experimental data:
 
-![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/He10/EXP1904_H7/pid.png)
+![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/EXP1904_H7/pid.png)
 
 
 ## Step by Step installation
