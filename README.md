@@ -119,11 +119,15 @@ root -l create_ND_geo_exp1904_10he_8m.C
 #run your simulation with 1000 events
 cd /opt/er/macro/He10/sim_nd
 root -l 'sim_digi.C(1000)'
-```
-Test insert of a picture
 
-#![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
-![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/He10/readme_pic/test_pic.png)
+cd reco/
+root -l reco_10he_exp.C
+root -l AfterReco.C
+root -l DrawPID.C
+```
+This is the result of an expected reconstruction:
+
+![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/He10/sim_nd/reco/pid.png)
 
 
 
@@ -156,7 +160,12 @@ cd /opt/accdaq
 bash run.sh
 cd /opt/run/EXP1904_H7
 bash run.sh -f input/h7_ct_18_0001.lmd.root
+root -l DrawPID.C
 ```
+This is the result of an expected reconstruction of the experimental data:
+
+![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/He10/EXP1904_H7/pid.png)
+
 
 ## Step by Step installation
 
