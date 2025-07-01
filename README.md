@@ -120,6 +120,13 @@ root -l create_ND_geo_exp1904_10he_8m.C
 cd /opt/er/macro/He10/sim_nd
 root -l 'sim_digi.C(1000)'
 ```
+Test insert of a picture
+
+#![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![alt text](https://github.com/sarymzhanova/er_He10/blob/ND_2n_track/macro/He10/readme_pic/test_pic.png)
+
+
+
 6. Run reconstruction and analysis
 
 This is an example of processing of raw data (unpacking, digitization and reconstruction) 
