@@ -37,12 +37,12 @@ for different studies.
 Due to high dependencies on the external packages of various versions, we strongly recommend to use
 the docker-image [docker](https://www.docker.com) to deploy ER installation.
 
-1. Install docker engine on your system: https://docs.docker.com/engine/install/ubuntu/
-2. Follow docker post-installation steps: https://docs.docker.com/engine/install/linux-postinstall/
+0. Install docker engine on your system: https://docs.docker.com/engine/install/ubuntu/
+1. Follow docker post-installation steps: https://docs.docker.com/engine/install/linux-postinstall/
 2. Clone ER repository:
 
 ```
-git clone https://github.com/FLNR-JINR/er/ .
+git clone https://github.com/sarymzhanova/er_He10 .
 git checkout ND_2n_track
 ```
 
