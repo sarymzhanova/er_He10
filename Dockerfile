@@ -5,6 +5,8 @@ ARG DEPENDENCIES=ghcr.io/flnr-jinr/fs_oct17p4:latest
 
 FROM ${DEPENDENCIES}
 
+RUN apt-get update
+
 RUN apt-get install nano
 
 WORKDIR /opt
@@ -24,7 +26,7 @@ RUN git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq &&\
 	cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/accdaq/install &&\
 	make install -j4
 
-RUN cd /opt && git clone https://github.com/flnr-jinr/er &&\
+RUN cd /opt && git clone https://github.com/sarymzhanova/er_He10 &&\
 	cd er &&\
 	git checkout ${ER} &&\
 	export SIMPATH=/opt/FairSoft/ &&\
