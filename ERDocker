@@ -1,0 +1,16 @@
+#!/bin/bash
+#Allow GUI
+xhost +local:docker
+#Remove stopped containers
+docker system prune
+docker run \
+    --log-driver none \
+    --entrypoint /bin/bash \
+    --net=host \
+    -v /home/user-1/er_He10:/opt/er_He10 \
+    -v /home/user-1/er_He10/macro:/opt/run \
+    -v /tmp/.X11-unix:/tmp/.X11-unix  \
+    -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw \
+    -w /opt/run \
+    -e DISPLAY=$DISPLAY \
+    -it er_nd_2n_track:latest

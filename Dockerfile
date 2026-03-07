@@ -27,7 +27,7 @@ RUN git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq &&\
 	make install -j4
 
 RUN cd /opt && git clone https://github.com/sarymzhanova/er_He10 &&\
-	cd er &&\
+	cd er_He10 &&\
 	git checkout ${ER} &&\
 	export SIMPATH=/opt/FairSoft/ &&\
 	export FAIRROOTPATH=/opt/FairRoot/ &&\
