@@ -5,8 +5,8 @@
 #include "TCanvas.h"
 
 int DrawPID_comp(
-        TString recoFile = "sim_digi_8_1nNDSteel.target.root", 
-        TString testFile = "sim_digi_1test.target.root"
+        TString recoFile = "../reco/sim_digi_8_1nNDSteel.target.root", 
+        TString testFile = "../reco/sim_digi_1test.target.root"
         )
 {
     TFile* reco = new TFile(recoFile, "read");

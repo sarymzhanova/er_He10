@@ -5,10 +5,10 @@
 #include "TCanvas.h"
 
 int DrawPID_all(
-        TString recoFile = "sim_digi_8_1nNDSteel.target.root", 
-        TString testFile = "sim_digi_1test.target.root",
-        TString simFile = "../sim_digi_8_1nNDSteel.root", 
-        TString simtestFile = "../sim_digi_1test.root"
+        TString recoFile = "../reco/sim_digi_8_1nNDSteel.target.root", 
+        TString testFile = "../reco/sim_digi_1test.target.root",
+        TString simFile = "../simulations/sim_digi_8_1nNDSteel.root", 
+        TString simtestFile = "../simulations/sim_digi_1test.root"
         )
 {
     TFile* reco = new TFile(recoFile, "read");
@@ -21,7 +21,7 @@ int DrawPID_all(
     TTree* simtestTree = (TTree*)simtest->Get("er");
     TH2F* hReco = new TH2F(
             "hReco", 
-            "Reconstruction;Edep Thick station, MeV; Edep Thin station, MeV",
+            "Reconstruction;Edep All station, MeV; Edep Thin station, MeV",
             400,
             0,
             200,
@@ -50,7 +50,7 @@ int DrawPID_all(
             100
             );
     TH2F* hSimtest = new TH2F(
-            "hSim", 
+            "hSimtest", 
             "Simulation;Edep Thick station, MeV; Edep Thin station, MeV",
             400,
             0,

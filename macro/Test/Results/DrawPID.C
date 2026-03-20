@@ -5,8 +5,8 @@
 #include "TCanvas.h"
 
 int DrawPID(
-        TString simFile = "../sim_digi_8_1nNDSteel.root", 
-        TString recoFile = "sim_digi_8_1nNDSteel.target.root"
+        TString simFile = "../simulations/sim_digi_8_1nNDSteel.root", 
+        TString recoFile = "../reco/sim_digi_8_1nNDSteel.target.root"
         )
 {
     TFile* sim = new TFile(simFile, "read");
@@ -37,7 +37,8 @@ int DrawPID(
     aCanvas->Divide(2, 1);
     aCanvas->cd(1);
     simTree->Draw(
-"TelescopeDigi_Telescope_he8_SingleSi_SSD20_X.fEdep:TelescopeDigi_Telescope_he8_SingleSi_SSD20_1_Y.fEdep+\
+"TelescopeDigi_Telescope_he8_SingleSi_SSD20_X.fEdep:\
+TelescopeDigi_Telescope_he8_SingleSi_SSD20_1_Y.fEdep+\
 TelescopeDigi_Telescope_he8_SingleSi_SSD20_2_Y.fEdep+\
 TelescopeDigi_Telescope_he8_SingleSi_SSD20_3_Y.fEdep+\
 TelescopeDigi_Telescope_he8_SingleSi_SSD20_4_Y.fEdep+\

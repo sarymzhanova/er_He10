@@ -28,15 +28,19 @@ int fTriggerNum = 1;
 void reco_10he_test(){
   //---------------------Files-----------------------------------------------
 
-	TString inFile= "sim_digi_1test.root";
+	TString appendName= "sim_digi_1test.root";
+  TString sim_directory = "../simulations/";
+  TString reco_directory= "../reco/";
+  TString setup_directory = "../setup/";
+  TString inFile=sim_directory + appendName;
 //	TString inFile= "sim_digi_8_1nNDVac.root";
 	// TString inFile= "sim_digi_8_1nNDAl.root";
 
 
 
 
-	TString outFile = inFile;
-  	inFile.Prepend("../");
+	TString outFile = appendName;
+  //inFile.Prepend("../");
 
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
@@ -45,9 +49,10 @@ void reco_10he_test(){
 
   TString parFile = "../par.root";
 //  TString geoFile = "../setup_exp10he.root";
-	TString geoFile = inFile;
-	Ssiz_t p1 = inFile.First("/");
+	TString geoFile = appendName;
+	Ssiz_t p1 = appendName.First("/");
 	geoFile.Insert(p1+1,"setup_");
+  geoFile = setup_directory + geoFile;
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -59,7 +64,7 @@ void reco_10he_test(){
 
   
   Ssiz_t p2 = outFile.First(".");
-  outFile.Replace(p2,5,".target.root");
+  outFile = reco_directory + outFile.Replace(p2,5,".target.root");
   
   run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);

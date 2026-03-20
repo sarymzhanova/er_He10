@@ -3,7 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/opt/FairRoot/include/**",
+                "/opt/FairSoft/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

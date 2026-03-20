@@ -40,8 +40,10 @@ void sim_digi_test (Int_t nEvents = 1000) {
   // --------------- Target -------------------------------------------------
   Double_t targetD2Thickness = 0.6;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_target_D2_geo.C
   //---------------------Files-----------------------------------------------
-  
-  	TString outFile= "sim_digi_1test.root";
+  TString sim_directory = "simulations/";
+  TString setup_directory = "setup/";
+  TString appendName= "sim_digi_1test.root";
+  TString outFile= sim_directory + appendName;
 //	TString outFile= "sim_digi_8_1nNDVac.root";
 	// TString outFile= "sim_digi_8_1nNDAl.root";
 	TString datFile= "10he_0p_r.dat";
@@ -286,8 +288,8 @@ void sim_digi_test (Int_t nEvents = 1000) {
   rtdb->saveOutput();
   rtdb->print();
 
-  TString setup_name = outFile;
-  setup_name.Prepend("setup_");
+  TString setup_name = appendName;
+  setup_name = setup_directory + setup_name.Prepend("setup_");
   run->CreateGeometryFile(setup_name);
 
   // -----   Run simulation  ------------------------------------------------
